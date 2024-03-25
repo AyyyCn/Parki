@@ -1,12 +1,38 @@
 from django.db import models
-from django.contrib.auth.models import User
+from django.contrib.auth.models import AbstractUser
 from django.utils import timezone
 from datetime import timedelta
+from django.contrib.auth.models import BaseUserManager
 
-class User (models.Model) :
-    name = models.CharField(max_length=100)
-    email = models.EmailField(max_length=100)
-    pwd = models.CharField(max_length=100)
+
+class CustomUserManager(BaseUserManager):
+    def create_user(self, username, password=None, **extra_fields):
+        if not username:
+            raise ValueError("Phone number is required")
+
+        if 'email' in extra_fields:
+            extra_fields['email'] = self.normalize_email(extra_fields['email'])
+
+        # Create a new user instance
+        user = self.model(username= username, **extra_fields)
+        user.set_password(password)
+        user.save(using=self._db)
+
+        return user
+
+    def create_superuser(self, username, password=None, **extra_fields):
+        # Set default values for superuser fields
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+        extra_fields.setdefault('is_active', True)
+
+        # Create a superuser using create_user method
+        return self.create_user(username, password, **extra_fields)
+
+
+class CustomUser(AbstractUser):
+    id= models.CharField(max_length=100, primary_key=True)
+    username = models.CharField(max_length=100, unique=True)
     phone = models.CharField(max_length=10)
     address = models.CharField(max_length=100)
     city = models.CharField(max_length=100)
@@ -14,10 +40,14 @@ class User (models.Model) :
     country = models.CharField(max_length=100)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    susbcription = models.IntegerField()
+    subscription = models.IntegerField()
     credit = models.IntegerField()
+    date_joined = None
+
+    objects = CustomUserManager()
+
     def __str__(self):
-        return self.name
+        return self.username
 
 
 class Parking(models.Model):
@@ -37,7 +67,7 @@ class Parking(models.Model):
         self.save()
 
 class UserCar(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     license_plate = models.CharField(max_length=20, unique=True)
 
     def __str__(self):
@@ -63,7 +93,7 @@ class ParkingSession(models.Model):
         return duration * self.parking.price_per_hour
 
 class ParkingReservation(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     parking = models.ForeignKey(Parking, on_delete=models.CASCADE)
     start_time = models.DateTimeField()
     duration_hours = models.IntegerField()
