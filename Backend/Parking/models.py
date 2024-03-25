@@ -74,3 +74,17 @@ class ParkingReservation(models.Model):
         now = timezone.now()
         end_time = self.start_time + timedelta(hours=self.duration_hours)
         return now >= self.start_time and now <= end_time
+
+
+class ParkingSessionArchive(models.Model):
+    # Assuming these fields mirror those in ParkingSession
+    license_plate = models.CharField(max_length=20)
+    entry_time = models.DateTimeField()
+    exit_time = models.DateTimeField()
+    
+    pay_time = models.DateTimeField(null=True, blank=True)
+    # Additional fields for archiving
+    archived_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Archived session for {self.license_plate}"
