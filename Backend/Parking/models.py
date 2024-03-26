@@ -31,18 +31,17 @@ class CustomUserManager(BaseUserManager):
 
 
 class CustomUser(AbstractUser):
-    id= models.CharField(max_length=100, primary_key=True)
+    id= models.AutoField(primary_key=True)
     username = models.CharField(max_length=100, unique=True)
-    phone = models.CharField(max_length=10)
-    address = models.CharField(max_length=100)
-    city = models.CharField(max_length=100)
-    state = models.CharField(max_length=100)
-    country = models.CharField(max_length=100)
-    created_at = models.DateTimeField(auto_now_add=True)
+    phone = models.CharField(max_length=10,default=None, null=True)
+    address = models.CharField(max_length=100,default=None, null=True)
+    city = models.CharField(max_length=100,default=None, null=True)
+    state = models.CharField(max_length=100,default=None, null=True)
+    country = models.CharField(max_length=100, default=None, null=True)
     updated_at = models.DateTimeField(auto_now=True)
-    subscription = models.IntegerField()
-    credit = models.IntegerField()
-    date_joined = None
+    subscription = models.IntegerField(default=None, null=True)
+    credit = models.IntegerField(default=None, null=True)
+
 
     objects = CustomUserManager()
 

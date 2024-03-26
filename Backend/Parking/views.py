@@ -1,10 +1,14 @@
+from django.contrib.auth.forms import AuthenticationForm
 from django.http import JsonResponse, HttpResponse
 from .Services.UserServices import get_checkinhour  # Adjust the import path as needed
-from django.contrib.auth import login
+from django.contrib.auth import login, authenticate
 from django.shortcuts import render, redirect
 from django import forms
-
-
+import logging
+logger = logging.getLogger(__name__)
+from .models import CustomUser
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.views import APIView
 
 
 def check_in_hour(request, license_plate):
@@ -15,6 +19,7 @@ def check_in_hour(request, license_plate):
     return JsonResponse({"check_in_hour": check_in_hour})
 
 def homepage(request):
+    logger.debug("dqondqn")
     return HttpResponse("this is the homepage ( au    cas où)")
 
 def registerpage(request):
@@ -30,24 +35,43 @@ def loginpage(request):
 from .forms import RegisterForm
 
 def register_view(request):
-    print("ririri")
+
     if request.method == 'GET':
         form = RegisterForm()
-        print(form)
-        print(" random")
+        logger.debug("debug MAAAAAAAAAAAAAAAAAN")
+
         return render(request, 'register.html', {'form': form})
 
     if request.method == 'POST':
         form = RegisterForm(request.POST)
-        print(form)
+        logger.debug("randooooooooooooooooooooooooo")
         if form.is_valid():
 
             user = form.save(commit=False)
             user.username = user.username.lower()
             user.save()
+            all_users= CustomUser.objects.all()
+            for usa in all_users:
+                logger.info(f"User '{usa.id}' created successfully.")
 
-            login(request, user)
-            print(form)
             return redirect('homepage')
         else:
-            return render(request, 'register.html', {'form': form})
+            logger.debug("hihiiiiiiiiiiiiiiiiiiiiiiii")
+            return render(request, 'register.html', {"form": form, })
+
+def login_view(request):
+    if request.method == 'POST':
+        form = AuthenticationForm(request, request.POST)
+        if form.is_valid():
+            username = form.cleaned_data.get('username')
+            password = form.cleaned_data.get('password')
+            user = authenticate(username=username, password=password)
+            if user is not None:
+                login(request, user)
+                return redirect('homepage')
+            else:
+
+                return render(request, 'login.html', {'form': form, 'error': 'Invalid username or password.'})
+    else:
+        form = AuthenticationForm()
+    return render(request, 'login.html', {'form': form})
