@@ -1,5 +1,8 @@
 from django.contrib.auth.forms import AuthenticationForm
 from django.http import JsonResponse, HttpResponse
+from rest_framework.permissions import AllowAny
+from rest_framework.response import Response
+
 from .Services.UserServices import get_checkinhour  # Adjust the import path as needed
 from django.contrib.auth import login, authenticate
 from django.shortcuts import render, redirect
@@ -8,7 +11,6 @@ import logging
 logger = logging.getLogger(__name__)
 from .models import CustomUser
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.views import APIView
 
 
 def check_in_hour(request, license_plate):
@@ -58,6 +60,38 @@ def register_view(request):
         else:
             logger.debug("hihiiiiiiiiiiiiiiiiiiiiiiii")
             return render(request, 'register.html', {"form": form, })
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def register_viewJSON(request):
+    if request.user.is_authenticated:
+        return JsonResponse({'message': 'User is already authenticated'}, status=400)
+    if request.method == 'POST':
+        form = RegisterForm(request.data)
+        if form.is_valid():
+            user = form.save(commit=False)
+            user.username = user.username.lower()
+            user.save()
+            return Response({'message': 'User created successfully'}, status=201)
+        else:
+            return Response({'error': form.errors}, status=400)
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def login_viewJSON(request):
+    if request.method == 'POST':
+        form = AuthenticationForm(data=request.data)
+        if form.is_valid():
+            username = form.cleaned_data.get('username')
+            password = form.cleaned_data.get('password')
+            user = authenticate(username=username, password=password)
+            if user is not None:
+                login(request, user)
+                return Response({'message': 'Login successful'}, status=200)
+            else:
+                return Response({'error': 'Invalid username or password'}, status=400)
+        else:
+            return Response({'error': form.errors}, status=400)
+
 
 def login_view(request):
     if request.method == 'POST':
