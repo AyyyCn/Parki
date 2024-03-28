@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:frontend/screens/welcome_screen.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:frontend/models/recommended_parking.dart';
-//import 'package:travel_app/pages/tourist_details_page.dart';
+
 
 class RecommendedParkings extends StatelessWidget {
   const RecommendedParkings({Key? key}) : super(key: key);
