@@ -4,9 +4,7 @@ from math import floor
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'myproject.settings')
 django.setup()
 from Parking.Services.UserServices import *
-timeStayed = timezone.now()-get_checkinhour("audia5")
-#show time stayed in minutes
-print(floor( timeStayed.total_seconds()/60) , " Minutes")
+
 
 from Parking.Services.ParkingServices import *
 start_parking_session("ABC123", 1)

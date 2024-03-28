@@ -2,7 +2,7 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.http import JsonResponse, HttpResponse
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
-
+from django.views.decorators.csrf import csrf_exempt
 from .Services.UserServices import get_checkinhour  # Adjust the import path as needed
 from django.contrib.auth import login, authenticate
 from django.shortcuts import render, redirect
@@ -64,20 +64,22 @@ def register_view(request):
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def register_viewJSON(request):
-    if request.user.is_authenticated:
-        return JsonResponse({'message': 'User is already authenticated'}, status=400)
     if request.method == 'POST':
-        form = RegisterForm(request.data)
+        form = RegisterForm(data=request.data)
         if form.is_valid():
             user = form.save(commit=False)
             user.username = user.username.lower()
             user.save()
-            return Response({'message': 'User created successfully'}, status=201)
+            return JsonResponse({'message': 'User created successfully'}, status=201)
         else:
-            return Response({'error': form.errors}, status=400)
+            print(form.errors)
+            return JsonResponse({'error': form.errors}, status=500)
+@csrf_exempt
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def login_viewJSON(request):
+    if request.user.is_authenticated:
+        return JsonResponse({'message': 'User is already authenticated'}, status=400)
     if request.method == 'POST':
         form = AuthenticationForm(data=request.data)
         if form.is_valid():
@@ -90,7 +92,7 @@ def login_viewJSON(request):
             else:
                 return Response({'error': 'Invalid username or password'}, status=400)
         else:
-            return Response({'error': form.errors}, status=400)
+            return Response(form.errors)
 
 
 def login_view(request):
@@ -109,3 +111,16 @@ def login_view(request):
     else:
         form = AuthenticationForm()
     return render(request, 'login.html', {'form': form})
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def get_all_users(request):
+    all_users = CustomUser.objects.all()
+    user_data = []
+    for user in all_users:
+        user_data.append({
+            'id': user.id,
+            'username': user.username,
+            'email': user.email,
+        })
+    return JsonResponse({'users': user_data}, status=200)

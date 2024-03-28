@@ -78,6 +78,8 @@ class ParkingSession(models.Model):
     entry_time = models.DateTimeField(auto_now_add=True)
     paid = models.BooleanField(default=False)
     pay_time = models.DateTimeField(null=True, blank=True)
+    def __str__(self):
+        return self.license_plate
 
 
     def calculate_duration(self):
