@@ -90,7 +90,7 @@ class ParkBookingScreen extends StatelessWidget {
                             ),
                           ),
                           const Spacer(),
-                          if (index == 0) ...[
+                          if ((index == 0)||(index==1)) ...[
                             ElevatedButton(
                               onPressed: () {
                                 // Implement pay functionality
@@ -100,7 +100,7 @@ class ParkBookingScreen extends StatelessWidget {
                           ],
                         ],
                       ),
-                      if (index == 0) ...[
+                      if ((index == 0)||(index==1)) ...[
                         const SizedBox(height: 5),
                         Text(
                           "Running",

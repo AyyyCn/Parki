@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/screens/reg_screen.dart';
 import 'package:frontend/screens/welcome_screen.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -12,7 +13,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Parking App',
+      title: 'Parki',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.blue,
@@ -20,7 +21,15 @@ class MyApp extends StatelessWidget {
           Theme.of(context).textTheme,
         ),
       ),
-      home: const WelcomePage(),
-    );
+      home: WelcomePage(),
+      routes: {
+      'RegScreen': (context) => RegScreen(),
+      // Other routes if any
+     },
+    onGenerateRoute: (settings) {
+    // Handle unknown routes here
+    },
+    // Other MaterialApp configurations
+     );
   }
 }

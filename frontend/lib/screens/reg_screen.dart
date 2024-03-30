@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:frontend/screens/login_screen.dart';
+import 'package:frontend/screens/phone_verif_screen.dart';
 
 class RegScreen extends StatefulWidget {
   const RegScreen({Key? key}) : super(key: key);
@@ -11,23 +12,26 @@ class RegScreen extends StatefulWidget {
 
 class _RegScreenState extends State<RegScreen> {
   List<Widget> vehiclePlateFields = [];
-//ne9sa kifesh tscrolli
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
+      body: ListView(
+        physics: const BouncingScrollPhysics(),
+        scrollDirection: Axis.vertical,
         children: [
           Container(
-            height: double.infinity,
-            width: double.infinity,
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(colors: [
-                Color.fromARGB(255, 150, 180, 228),
-                Color.fromARGB(255, 30, 109, 118),
-              ]),
+            height: 200, // Adjust the height according to your design
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  Color(0xFFC4DEF6),
+                  Color.fromARGB(255, 102, 187, 236),
+                ],
+              ),
             ),
-            child: const Padding(
-              padding: EdgeInsets.only(top: 60.0, left: 22),
+            child: Padding(
+              padding: const EdgeInsets.only(top: 60.0, left: 22),
               child: Text(
                 'Create Your\nAccount',
                 style: TextStyle(
@@ -39,7 +43,7 @@ class _RegScreenState extends State<RegScreen> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.only(top: 200.0),
+            padding: const EdgeInsets.only(top: 20.0),
             child: Container(
               decoration: const BoxDecoration(
                 borderRadius: BorderRadius.only(
@@ -48,8 +52,6 @@ class _RegScreenState extends State<RegScreen> {
                 ),
                 color: Colors.white,
               ),
-              height: double.infinity,
-              width: double.infinity,
               child: Padding(
                 padding: const EdgeInsets.only(left: 18.0, right: 18),
                 child: Column(
@@ -142,25 +144,35 @@ class _RegScreenState extends State<RegScreen> {
                       ],
                     ),
                     const SizedBox(height: 10),
-                    Container(
-                      height: 55,
-                      width: 300,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(30),
-                        gradient: const LinearGradient(
-                          colors: [
-                            Color(0xFFC4DEF6),
-                            Color.fromARGB(255, 102, 187, 236),
-                          ],
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => PhoneVerifScreen(), 
+                          ),
+                        );
+                      },
+                      child: Container(
+                        height: 55,
+                        width: 300,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(30),
+                          gradient: const LinearGradient(
+                            colors: [
+                              Color(0xFFC4DEF6),
+                              Color.fromARGB(255, 102, 187, 236),
+                            ],
+                          ),
                         ),
-                      ),
-                      child: const Center(
-                        child: Text(
-                          'SIGN UP',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20,
-                            color: Colors.white,
+                        child: const Center(
+                          child: Text(
+                            'SIGN UP',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20,
+                              color: Colors.white,
+                            ),
                           ),
                         ),
                       ),
@@ -190,20 +202,20 @@ class _RegScreenState extends State<RegScreen> {
             ),
           ),
         ],
-     
+      ),
+    );
+  }
 
-));
+  @override
+  void initState() {
+    super.initState();
+    // Initially, add one empty field for vehicle plate
+    vehiclePlateFields.add(
+      TextField(
+        decoration: InputDecoration(
+          hintText: 'Enter vehicle plate',
+        ),
+      ),
+    );
+  }
 }
-
-@override
-void initState() {
-super.initState();
-// Initially, add one empty field for vehicle plate
-vehiclePlateFields.add(
-TextField(
-decoration: InputDecoration(
-hintText: 'Enter vehicle plate',
-),
-),
-);
-}}
