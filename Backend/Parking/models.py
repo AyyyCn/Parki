@@ -8,7 +8,7 @@ from django.contrib.auth.models import BaseUserManager
 class CustomUserManager(BaseUserManager):
     def create_user(self, username, password=None, **extra_fields):
         if not username:
-            raise ValueError("Phone number is required")
+            raise ValueError("username number is required")
 
         if 'email' in extra_fields:
             extra_fields['email'] = self.normalize_email(extra_fields['email'])
