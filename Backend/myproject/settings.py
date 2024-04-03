@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'Parking',
     'rest_framework',
+    'phonenumber_field',
     
     #auth
     'rest_framework.authtoken',
@@ -158,4 +159,8 @@ AUTH_USER_MODEL = 'Parking.CustomUser'
 
 CSRF_COOKIE_SECURE = False
 
-
+#khater wided theb tlf
+AUTHENTICATION_BACKENDS = [
+    'Parking.Authentication.PhoneNumberBackend',
+    'django.contrib.auth.backends.ModelBackend',
+]

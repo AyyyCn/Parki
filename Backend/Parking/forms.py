@@ -1,14 +1,26 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
+
 from .models import CustomUser
 
-class RegisterForm(UserCreationForm):
+
+
+
+class RegisterForm(forms.ModelForm):
     class Meta:
         model = CustomUser
-        fields = ('username', 'email', 'password1', 'password2')
+        fields= ('last_name', 'phone_number', 'password')
+        widgets= {
+            'password': forms.PasswordInput()
+        }
 
-
+    def save(self, commit=True):
+        user= super().save(commit=False)
+        user.set_password(self.cleaned_data['password'])
+        if commit:
+            user.save()
+        return user
 
 class LoginForm(forms.Form):
-    username = forms.CharField(max_length=65)
-    password = forms.CharField(max_length=65, widget=forms.PasswordInput)
+    phone_number = forms.CharField(max_length=20)
+    password = forms.CharField(widget=forms.PasswordInput)

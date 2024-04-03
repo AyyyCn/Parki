@@ -3,48 +3,51 @@ from django.contrib.auth.models import AbstractUser
 from django.utils import timezone
 from datetime import timedelta
 from django.contrib.auth.models import BaseUserManager
+from phonenumber_field.modelfields import PhoneNumberField
 
 
 class CustomUserManager(BaseUserManager):
-    def create_user(self, username, password=None, **extra_fields):
-        if not username:
-            raise ValueError("username number is required")
+    def create_user(self, phone_number, password=None, **extra_fields):
+        if not phone_number:
+            raise ValueError("phone number is required")
 
         if 'email' in extra_fields:
             extra_fields['email'] = self.normalize_email(extra_fields['email'])
 
         # Create a new user instance
-        user = self.model(username= username, **extra_fields)
+        user = self.model(phone_number=phone_number, **extra_fields)
         user.set_password(password)
         user.save(using=self._db)
 
         return user
 
-    def create_superuser(self, username, password=None, **extra_fields):
+    def create_superuser(self, phone_number, password=None, **extra_fields):
         # Set default values for superuser fields
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
         extra_fields.setdefault('is_active', True)
 
         # Create a superuser using create_user method
-        return self.create_user(username, password, **extra_fields)
+        return self.create_user(phone_number, password, **extra_fields)
 
 
 class CustomUser(AbstractUser):
-    id= models.AutoField(primary_key=True)
-    username = models.CharField(max_length=100, unique=True)
-    phone = models.CharField(max_length=10,default=None, null=True)
-    address = models.CharField(max_length=100,default=None, null=True)
-    city = models.CharField(max_length=100,default=None, null=True)
-    state = models.CharField(max_length=100,default=None, null=True)
+    id = models.AutoField(primary_key=True)
+
+    first_name = models.CharField(max_length=100, default=None, null=True)
+    last_name = models.CharField(max_length=100, default=None, null=True)
+    phone_number = PhoneNumberField(unique=True)
+    address = models.CharField(max_length=100, default=None, null=True)
+    city = models.CharField(max_length=100, default=None, null=True)
+    state = models.CharField(max_length=100, default=None, null=True)
     country = models.CharField(max_length=100, default=None, null=True)
     updated_at = models.DateTimeField(auto_now=True)
     subscription = models.IntegerField(default=None, null=True)
     credit = models.IntegerField(default=None, null=True)
+    username = None
 
-
+    USERNAME_FIELD = 'phone_number'
     objects = CustomUserManager()
-
     def __str__(self):
         return self.username
 
@@ -60,10 +63,12 @@ class Parking(models.Model):
 
     def __str__(self):
         return self.name
+
     def update_availability(self, increment=True):
         """Increment or decrement the available spots."""
         self.available_spots += 1 if increment else -1
         self.save()
+
 
 class UserCar(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
@@ -72,15 +77,16 @@ class UserCar(models.Model):
     def __str__(self):
         return self.license_plate
 
+
 class ParkingSession(models.Model):
     parking = models.ForeignKey(Parking, on_delete=models.CASCADE)
     license_plate = models.CharField(max_length=20)
     entry_time = models.DateTimeField(auto_now_add=True)
     paid = models.BooleanField(default=False)
     pay_time = models.DateTimeField(null=True, blank=True)
+
     def __str__(self):
         return self.license_plate
-
 
     def calculate_duration(self):
         """Calculate the total duration of the parking session in hours."""
@@ -92,6 +98,7 @@ class ParkingSession(models.Model):
         """Calculate the cost of the parking session."""
         duration = self.calculate_duration()
         return duration * self.parking.price_per_hour
+
 
 class ParkingReservation(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
@@ -112,7 +119,7 @@ class ParkingSessionArchive(models.Model):
     license_plate = models.CharField(max_length=20)
     entry_time = models.DateTimeField()
     exit_time = models.DateTimeField()
-    
+
     pay_time = models.DateTimeField(null=True, blank=True)
     # Additional fields for archiving
     archived_at = models.DateTimeField(auto_now_add=True)

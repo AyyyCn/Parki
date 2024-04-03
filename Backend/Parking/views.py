@@ -15,7 +15,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django import forms
 import logging
 
-from .serializers import PublicUserInfoSerializer, ChangePasswordSerializer, SelfUserInfoSerializer
+from .UserSerializers import PublicUserInfoSerializer, ChangePasswordSerializer, SelfUserInfoSerializer
+from .UserSerializers import PhoneNumberSerializer
 
 logger = logging.getLogger(__name__)
 from .models import CustomUser
@@ -45,7 +46,7 @@ def loginpage(request):
     return render(request, "login.html", {'title': title})
 
 
-from .forms import RegisterForm
+from .forms import RegisterForm, LoginForm
 
 
 def register_view(request):
@@ -61,7 +62,6 @@ def register_view(request):
         if form.is_valid():
 
             user = form.save(commit=False)
-            user.username = user.username.lower()
             user.save()
             all_users = CustomUser.objects.all()
             for usa in all_users:
@@ -81,7 +81,6 @@ def register_viewJSON(request):
         form = RegisterForm(data=request.data)
         if form.is_valid():
             user = form.save(commit=False)
-            user.username = user.username.lower()
             user.save()
             return JsonResponse({'message': 'User created successfully'}, status=201)
         else:
@@ -103,11 +102,13 @@ def login_viewJSON(request):
         return JsonResponse({'message': 'User is already authenticated'}, status=400)
 
     if request.method == 'POST':
-        form = AuthenticationForm(data=request.data)
+        form = LoginForm(data=request.data)
+        print(form.is_valid())
         if form.is_valid():
-            username = form.cleaned_data.get('username')
+            print("dddddddddddddddddddddddd")
+            phone_number = form.cleaned_data.get('phone_number')
             password = form.cleaned_data.get('password')
-            user = authenticate(username=username, password=password)
+            user = authenticate(request, phone_number=phone_number, password=password)
             if user is not None:
                 login(request, user)
                 # Retrieve CSRF token
@@ -117,7 +118,7 @@ def login_viewJSON(request):
                 response["X-CSRFToken"] = csrf_token
                 return response
             else:
-                return JsonResponse({'error': 'Invalid username or password'}, status=400)
+                return JsonResponse({'error': 'Invalid phone number or password'}, status=400)
         else:
             return JsonResponse(form.errors, status=400)
 
@@ -126,15 +127,15 @@ def login_view(request):
     if request.method == 'POST':
         form = AuthenticationForm(request, request.POST)
         if form.is_valid():
-            username = form.cleaned_data.get('username')
+            phonenumber = form.cleaned_data.get('phone_number')
             password = form.cleaned_data.get('password')
-            user = authenticate(username=username, password=password)
+            user = authenticate(phone_number=phonenumber, password=password)
             if user is not None:
                 login(request, user)
                 return redirect('homepage')
             else:
 
-                return render(request, 'login.html', {'form': form, 'error': 'Invalid username or password.'})
+                return render(request, 'login.html', {'form': form, 'error': 'Invalid phone number or password.'})
     else:
         form = AuthenticationForm()
     return render(request, 'login.html', {'form': form})
@@ -144,16 +145,17 @@ def login_view(request):
 @permission_classes([AllowAny])
 def get_all_users(request):
     all_users = CustomUser.objects.all()
-    user_data = []
+    data = []
     for user in all_users:
-        user_data.append({
-            'id': user.id,
-            'username': user.username,
-            'email': user.email,
-            'phone': user.phone,
-            'auth': user.is_authenticated
-        })
-    return JsonResponse({'users': user_data}, status=200)
+        pn = PhoneNumberSerializer()
+        phone_num = pn.serialize_phone_number(getattr(user, "phone_number", None))
+        data.append({
+
+            "phone": phone_num,
+            "id": user.id,
+            "first_name": user.first_name})
+
+    return Response(data, status=200)
 
 
 @api_view(['POST'])
@@ -169,6 +171,7 @@ from .models import CustomUser
 
 class SelfUserInfoViewSet(viewsets.ViewSet):
     permission_classes = [IsAuthenticated]
+
     def retrieve(self, request):
 
         user = request.user
@@ -181,7 +184,12 @@ class SelfUserInfoViewSet(viewsets.ViewSet):
             for field in fields:
 
                 if field in SelfUserInfoSerializer.Meta.fields:
-                    data[field] = getattr(user, field, None)
+                    if field == "phone_number":
+                        pn = PhoneNumberSerializer()
+                        phone_num = pn.serialize_phone_number(getattr(user, field, None))
+                        data[field] = phone_num
+                    else:
+                        data[field] = getattr(user, field, None)
                 else:
                     return Response({'error': f'Field "{field}" is not valid'}, status=status.HTTP_400_BAD_REQUEST)
             return Response(data, status=status.HTTP_200_OK)
@@ -218,6 +226,9 @@ class PublicUserInfoViewSet(viewsets.ViewSet):
                 for field in fields:
                     # Check if the requested field is valid
                     if field in PublicUserInfoSerializer.Meta.fields:
+                        if field == 'phone_number':
+                            pn = PhoneNumberSerializer()
+                            phonenum = pn.serialize_phone_number(getattr(user, "phone_number", None))
                         data[field] = getattr(user, field, None)
                     else:
                         return Response({'error': f'Field "{field}" is not valid'}, status=status.HTTP_400_BAD_REQUEST)
@@ -230,9 +241,9 @@ class PublicUserInfoViewSet(viewsets.ViewSet):
             # Return 404 if the user with the provided pk is not found
             return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
 
-    def update(self, request,pk=None, *args, **kwargs):
+    def update(self, request, pk=None, *args, **kwargs):
 
-        user=CustomUser.objects.filter(id=pk).first()
+        user = CustomUser.objects.filter(id=pk).first()
         try:
             instance = user
             partial = kwargs.pop('partial', False)
@@ -244,6 +255,7 @@ class PublicUserInfoViewSet(viewsets.ViewSet):
             # Handle the exception and return an appropriate error response
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
+
 class UpdatePassword(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -253,7 +265,6 @@ class UpdatePassword(APIView):
     def put(self, request, *args, **kwargs):
         self.object = self.get_object()
         serializer = ChangePasswordSerializer(data=request.data)
-
         if serializer.is_valid():
             # Check old password
             old_password = serializer.data.get("old_password")
@@ -268,10 +279,9 @@ class UpdatePassword(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-
-
 from django.contrib.auth import logout
 from django.http import JsonResponse
+
 
 @api_view(['PUT'])
 def logout_all_users(request):
@@ -283,9 +293,10 @@ def logout_all_users(request):
 
     return JsonResponse({'message': 'All users logged out successfully'}, status=200)
 
+
 @api_view(['GET'])
 def Test(request):
-    data={}
+    data = {}
     for us in CustomUser.objects.all():
         data[us.id] = us.is_authenticated
     return Response(data)
