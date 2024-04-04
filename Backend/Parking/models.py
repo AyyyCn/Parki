@@ -49,7 +49,7 @@ class CustomUser(AbstractUser):
     USERNAME_FIELD = 'phone_number'
     objects = CustomUserManager()
     def __str__(self):
-        return self.username
+        return (str(self.phone_number))
 
 
 class Parking(models.Model):
