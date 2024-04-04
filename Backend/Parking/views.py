@@ -186,8 +186,8 @@ class SelfUserInfoViewSet(viewsets.ViewSet):
                 if field in SelfUserInfoSerializer.Meta.fields:
                     if field == "phone_number":
                         pn = PhoneNumberSerializer()
-                        phone_num = pn.serialize_phone_number(getattr(user, field, None))
-                        data[field] = phone_num
+                        phonenum = pn.to_representation(getattr(user, "phone_number", None))
+                        data["phone_number"] = phonenum
                     else:
                         data[field] = getattr(user, field, None)
                 else:
@@ -200,9 +200,9 @@ class SelfUserInfoViewSet(viewsets.ViewSet):
 
     def update(self, request, *args, **kwargs):
         try:
-            partial = kwargs.pop('partial', False)
+            partial = kwargs.pop('partial', True)
             instance = request.user
-            serializer = PublicUserInfoSerializer(instance, data=request.data, partial=partial)
+            serializer = SelfUserInfoSerializer(instance, data=request.data, partial=partial)
             serializer.is_valid(raise_exception=True)
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
@@ -228,8 +228,10 @@ class PublicUserInfoViewSet(viewsets.ViewSet):
                     if field in PublicUserInfoSerializer.Meta.fields:
                         if field == 'phone_number':
                             pn = PhoneNumberSerializer()
-                            phonenum = pn.serialize_phone_number(getattr(user, "phone_number", None))
-                        data[field] = getattr(user, field, None)
+                            phonenum = pn.to_representation(getattr(user, "phone_number", None))
+                            data["phone_number"]=phonenum
+                        else:
+                            data[field] = getattr(user, field, None)
                     else:
                         return Response({'error': f'Field "{field}" is not valid'}, status=status.HTTP_400_BAD_REQUEST)
                 return Response(data, status=status.HTTP_200_OK)
@@ -246,7 +248,7 @@ class PublicUserInfoViewSet(viewsets.ViewSet):
         user = CustomUser.objects.filter(id=pk).first()
         try:
             instance = user
-            partial = kwargs.pop('partial', False)
+            partial = kwargs.pop('partial', True)
             serializer = PublicUserInfoSerializer(instance, data=request.data, partial=partial)
             serializer.is_valid(raise_exception=True)
             serializer.save()
