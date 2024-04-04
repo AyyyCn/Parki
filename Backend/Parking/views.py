@@ -141,22 +141,6 @@ def login_view(request):
     return render(request, 'login.html', {'form': form})
 
 
-@api_view(['GET'])
-@permission_classes([AllowAny])
-def get_all_users(request):
-    all_users = CustomUser.objects.all()
-    data = []
-    for user in all_users:
-        pn = PhoneNumberSerializer()
-        phone_num = pn.serialize_phone_number(getattr(user, "phone_number", None))
-        data.append({
-
-            "phone": phone_num,
-            "id": user.id,
-            "first_name": user.first_name})
-
-    return Response(data, status=200)
-
 
 @api_view(['POST'])
 def logout_view(request):
