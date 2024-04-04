@@ -11,8 +11,6 @@ class RegScreen extends StatefulWidget {
 }
 
 class _RegScreenState extends State<RegScreen> {
-  List<Widget> vehiclePlateFields = [];
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -111,39 +109,6 @@ class _RegScreenState extends State<RegScreen> {
                       ),
                     ),
                     const SizedBox(height: 10),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Vehicle Plates',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Color.fromARGB(255, 0, 0, 0),
-                          ),
-                        ),
-                        ...vehiclePlateFields,
-                        GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              vehiclePlateFields.add(
-                                TextField(
-                                  decoration: InputDecoration(
-                                    hintText: 'Enter vehicle plate',
-                                  ),
-                                ),
-                              );
-                            });
-                          },
-                          child: Row(
-                            children: [
-                              Icon(Icons.add),
-                              Text('Add another plate'),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 10),
                     GestureDetector(
                       onTap: () {
                         Navigator.push(
@@ -202,19 +167,6 @@ class _RegScreenState extends State<RegScreen> {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    // Initially, add one empty field for vehicle plate
-    vehiclePlateFields.add(
-      TextField(
-        decoration: InputDecoration(
-          hintText: 'Enter vehicle plate',
-        ),
       ),
     );
   }
