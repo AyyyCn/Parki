@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:frontend/screens/welcome_screen.dart';
+import 'package:frontend/screens/edit_profile_screen.dart';
+import 'package:frontend/screens/login_screen.dart';
 import 'package:frontend/widgets/custom_bottom_navigation_bar.dart';
-import 'package:ionicons/ionicons.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({Key? key}) : super(key: key);
@@ -12,14 +12,12 @@ class ProfileScreen extends StatelessWidget {
     return Scaffold(
       body: Container(
         padding: const EdgeInsets.all(20),
-        decoration: const BoxDecoration(
-          image: DecorationImage(image: AssetImage("images/parking2.jpg"),
-          fit: BoxFit.cover,),
-          
+        decoration: BoxDecoration(
+          color: const Color.fromARGB(255, 174, 219, 239), 
         ),
         child: Column(
           children: [
-            const SizedBox(height: 80),
+            const SizedBox(height: 50),
             
             const SizedBox(height: 20),
             profileItem('Name', 'Jalila', CupertinoIcons.person),
@@ -28,16 +26,43 @@ class ProfileScreen extends StatelessWidget {
             const SizedBox(height: 10),
             profileItem('Vehicles', ['ABC123', 'DEF456','546154','GG45T'], Icons.directions_car),
             const SizedBox(height: 20),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {},
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.all(15),
+           SizedBox(
+          width: double.infinity,
+          child: ElevatedButton(
+            onPressed: () {
+              // Navigate to the profile edit page
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => EditProfileScreen(),
                 ),
-                child: const Text('Edit Profile'),
-              ),
-            )
+              );
+            },
+            style: ElevatedButton.styleFrom(
+              padding: const EdgeInsets.all(15),
+            ),
+            child: const Text('Edit Profile'),
+          ),
+        ),
+        const SizedBox(height: 10),
+        SizedBox(
+          width: double.infinity,
+          child: ElevatedButton(
+            onPressed: () {
+              // sign out
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => loginScreen(),
+                ),
+              );
+            },
+            style: ElevatedButton.styleFrom(
+              padding: const EdgeInsets.all(15),
+            ),
+            child: const Text('Sign Out'),
+          ),
+        ),
           ],
         ),
       ),
