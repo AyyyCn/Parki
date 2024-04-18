@@ -48,7 +48,7 @@ class NearbyParkings extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             const Text(
-                              "Sea of Peace",
+                              "Parking Le Palmarium",
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,

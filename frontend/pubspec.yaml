@@ -11,7 +11,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-
+  dio: ^4.0.6
+  flutter_bloc: ^8.0.1
+  equatable: ^2.0.3
   google_fonts: ^6.2.1
   ionicons: ^0.2.1
   cupertino_icons: ^1.0.6

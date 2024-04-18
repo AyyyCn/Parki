@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:frontend/screens/login_screen.dart';
 import 'package:frontend/screens/phone_verif_screen.dart';
-
+import 'package:dio/dio.dart';
 class RegScreen extends StatefulWidget {
   const RegScreen({Key? key}) : super(key: key);
 
@@ -13,6 +13,41 @@ class RegScreen extends StatefulWidget {
 class _RegScreenState extends State<RegScreen> {
   List<Widget> vehiclePlateFields = [];
 
+  Future<void> registerUser() async
+  {
+    print("Calling register");
+    var dio = Dio();
+    var url = 'http://10.0.2.2:8000/registerAPI';
+    try {
+      var response = await dio.post(url,data:
+      {'first_name' : 'Ahsen',
+      'last_name' : 'Mohsen',
+      'phone_number' : '+12125552360',
+      'email' : "ahmedmohsen@gmail.com ",
+      'password1' : 'slmkhoua12!',
+      'password2' : 'slmkhoua12!'
+
+      },options: Options(
+        contentType: Headers.jsonContentType,
+        followRedirects: false,
+        validateStatus: (status) {
+          return status! < 500;
+        },
+      ));
+      print("CODE:");
+      print(response.statusCode);
+      if (response.statusCode == 201) {
+        print('User registered successfully');
+        // Handle success, such as navigation or showing a success message
+      } else {
+        print('Failed to register user: ${response.statusCode}');
+        // Handle failure, such as showing an error message
+      }
+    } on DioError catch (e) {
+      print('Dio error: $e');
+      // Handle Dio error here
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -146,6 +181,7 @@ class _RegScreenState extends State<RegScreen> {
                     const SizedBox(height: 10),
                     GestureDetector(
                       onTap: () {
+                        registerUser();
                         Navigator.push(
                           context,
                           MaterialPageRoute(

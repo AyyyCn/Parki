@@ -90,7 +90,6 @@ def register_viewJSON(request):
 
 from django.middleware.csrf import get_token
 
-from django.middleware.csrf import get_token
 from django.http import JsonResponse
 
 

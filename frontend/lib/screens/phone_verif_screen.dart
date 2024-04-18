@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/screens/home_screen.dart';
 import 'package:pinput/pinput.dart';
 
 class PhoneVerifScreen extends StatefulWidget {
@@ -102,7 +103,12 @@ class _MyVerifyState extends State<PhoneVerifScreen> {
                         backgroundColor: Color.fromARGB(255, 134, 180, 219),
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10))),
-                    onPressed: () {},
+                    onPressed: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => HomePage()),
+            );
+          },
                     child: Text("Verify Phone Number")),
               ),
               Row(
