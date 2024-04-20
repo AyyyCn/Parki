@@ -1,11 +1,118 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:frontend/screens/home_screen.dart';
 import 'package:frontend/screens/reg_screen.dart';
 
-class loginScreen extends StatelessWidget {
+class loginScreen extends StatefulWidget {
   const loginScreen({Key? key}) : super(key: key);
 
+  @override
+  _loginScreenState createState() => _loginScreenState();
+}
+
+class _loginScreenState extends State<loginScreen> {
+  TextEditingController phoneNumberController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
+  bool isLoading = false;
+
+    Future<void> loginUser() async {
+      if (phoneNumberController.text.isEmpty || passwordController.text.isEmpty) {
+      // Show alert if any of the form fields are empty
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Incomplete Form'),
+            content: Text('Please fill in all required fields.'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+      return;
+    }
+    setState(() {
+      isLoading = true;
+    });
+
+    var dio = Dio();
+    var url = 'http://10.0.2.2:8000/loginAPI';
+    
+    try {
+      var phoneNumber = '+216${phoneNumberController.text}';
+      var response = await dio.post(
+        url,
+        data: {
+          'phone_number': phoneNumber,
+          'password': passwordController.text,
+        },
+        options: Options(
+          contentType: Headers.jsonContentType,
+          validateStatus: (status) => status != null && status <= 500,
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => HomePage()),
+        );
+      } else {
+        // Display error message received from the server
+        print('hereeee001');
+        var responseData = response.data['error'];
+        print('hereeee002');
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text('Login Failed'),
+              content: Text(responseData.toString()),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
+      }
+    } catch (e) {
+      //  unexpected errors
+      print('Error: $e');
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Error'),
+            content: Text('An unexpected error occurred.'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -52,9 +159,11 @@ class loginScreen extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     TextField(
-                      inputFormatters: [
+                      /*inputFormatters: [
                         FilteringTextInputFormatter.digitsOnly
-                      ], // Accepts only numeric input
+                      ], // Accepts only numeric input*/
+                      controller: phoneNumberController,
+                      keyboardType: TextInputType.phone,
                       decoration: InputDecoration(
                         suffixIcon: Icon(Icons.phone, color: Colors.grey),
                         label: Text(
@@ -66,8 +175,9 @@ class loginScreen extends StatelessWidget {
                         ),
                       ),
                     ),
-                    const TextField(
+                    TextFormField(
                       obscureText: true,
+                      controller: passwordController,
                       decoration: InputDecoration(
                         suffixIcon: Icon(Icons.lock, color: Colors.grey),
                         label: Text(
@@ -103,7 +213,11 @@ class loginScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 40),
-                    Container(
+                    GestureDetector(
+                      onTap: () {
+                        loginUser();
+                      },
+                    child: Container(
                       height: 55,
                       width: 300,
                       decoration: BoxDecoration(
@@ -125,6 +239,7 @@ class loginScreen extends StatelessWidget {
                           ),
                         ),
                       ),
+                    ),
                     ),
                     const SizedBox(height: 20),
                     Align(
