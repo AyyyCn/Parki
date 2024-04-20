@@ -20,6 +20,7 @@ dependencies:
   geolocator: ^8.2.1
   url_launcher: ^6.1.2
   pinput: ^2.2.12
+  html: ^0.15.0
 
 dev_dependencies:
   flutter_test:

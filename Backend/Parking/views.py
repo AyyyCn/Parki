@@ -115,10 +115,13 @@ def login_viewJSON(request):
                 # Include CSRF token in response headers
                 response = JsonResponse({'message': 'Login successful'}, status=200)
                 response["X-CSRFToken"] = csrf_token
+                print(response)
                 return response
+                
             else:
                 return JsonResponse({'error': 'Invalid phone number or password'}, status=400)
         else:
+            print(form.errors)
             return JsonResponse(form.errors, status=400)
 
 
