@@ -3,21 +3,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:frontend/screens/home_screen.dart';
 import 'package:frontend/screens/reg_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class loginScreen extends StatefulWidget {
   const loginScreen({Key? key}) : super(key: key);
 
   @override
-  _loginScreenState createState() => _loginScreenState();
+  _LoginScreenState createState() => _LoginScreenState();
 }
 
-class _loginScreenState extends State<loginScreen> {
+class _LoginScreenState extends State<loginScreen> {
   TextEditingController phoneNumberController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   bool isLoading = false;
 
-    Future<void> loginUser() async {
-      if (phoneNumberController.text.isEmpty || passwordController.text.isEmpty) {
+  Future<void> loginUser() async {
+    if (phoneNumberController.text.isEmpty || passwordController.text.isEmpty) {
       // Show alert if any of the form fields are empty
       showDialog(
         context: context,
@@ -38,13 +39,14 @@ class _loginScreenState extends State<loginScreen> {
       );
       return;
     }
+
     setState(() {
       isLoading = true;
     });
 
     var dio = Dio();
     var url = 'http://10.0.2.2:8000/loginAPI';
-    
+
     try {
       var phoneNumber = '+216${phoneNumberController.text}';
       var response = await dio.post(
@@ -60,15 +62,28 @@ class _loginScreenState extends State<loginScreen> {
       );
 
       if (response.statusCode == 200) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => HomePage()),
-        );
+        // Extract Cookie header
+    String cookieHeader = response.headers['set-cookie'].toString();
+print(cookieHeader);
+print("we've got this");
+    // Extract session ID and CSRF token
+    String sessionId = _extractSessionId(cookieHeader);
+    String csrfToken = _extractCsrfToken(cookieHeader);
+  print("sessionid:  "); print(sessionId);
+  print("csrftoken:  "); print(csrfToken);
+    // Save session ID and CSRF token to shared preferences
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('sessionId', sessionId);
+    await prefs.setString('csrfToken', csrfToken);
+
+    // Navigate to the home page
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => HomePage()),
+    );
       } else {
         // Display error message received from the server
-        print('hereeee001');
         var responseData = response.data['error'];
-        print('hereeee002');
         showDialog(
           context: context,
           builder: (BuildContext context) {
@@ -88,7 +103,7 @@ class _loginScreenState extends State<loginScreen> {
         );
       }
     } catch (e) {
-      //  unexpected errors
+      // Handle unexpected errors
       print('Error: $e');
       showDialog(
         context: context,
@@ -113,6 +128,34 @@ class _loginScreenState extends State<loginScreen> {
       });
     }
   }
+
+ // Function to extract session ID from Cookie header
+String _extractSessionId(String cookieHeader) {
+ List<String> cookies = cookieHeader.split(RegExp(r'[;,]'));
+
+  for (String cookie in cookies) {
+    String trimmedCookie = cookie.trim();
+    print("trimmed cookie part");
+    print (trimmedCookie);
+    if (trimmedCookie.startsWith('[sessionid=')) {
+      return trimmedCookie.substring('[sessionid='.length);
+    }
+  }
+  return '';
+}
+
+// Function to extract CSRF token from Cookie header
+String _extractCsrfToken(String cookieHeader) {
+List<String> cookies = cookieHeader.split(RegExp(r'[;,]'));
+  for (String cookie in cookies) {
+    String trimmedCookie = cookie.trim();
+    if (trimmedCookie.startsWith('csrftoken=')) {
+      return trimmedCookie.substring('csrftoken='.length);
+    }
+  }
+  return '';
+}
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

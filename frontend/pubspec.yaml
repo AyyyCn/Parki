@@ -21,6 +21,7 @@ dependencies:
   url_launcher: ^6.1.2
   pinput: ^2.2.12
   html: ^0.15.0
+  shared_preferences: ^2.2.3
 
 dev_dependencies:
   flutter_test:
