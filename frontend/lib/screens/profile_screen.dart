@@ -46,7 +46,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       print('User Data: $userData'); // Print userData to inspect its structure
       
       setState(() {
-        name = userData['first_name'].toString() ; // Access 'first_name' with null check
+        name = userData['first_name'].toString() + " " +userData['last_name'].toString()  ; // Access 'first_name' with null check
         phone = userData['phone_number']['national_number'].toString() ; // Access 'phone_number' with null check
         //vehicles = List<String>.from(userData['vehicles']); // Uncomment and modify if 'vehicles' is an array in the response
         isLoading = false;

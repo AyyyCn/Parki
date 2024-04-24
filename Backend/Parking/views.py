@@ -244,7 +244,7 @@ class PublicUserInfoViewSet(viewsets.ViewSet):
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
-class UpdatePassword(APIView):
+class   UpdatePassword(APIView):
     permission_classes = [IsAuthenticated]
 
     def get_object(self, queryset=None):
