@@ -1,6 +1,7 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-
+from . import parkingViews
+from .parkingViews import ParkingAPIView
 from . import views
 from .views import PublicUserInfoViewSet, UpdatePassword, SelfUserInfoViewSet
 
@@ -24,6 +25,8 @@ urlpatterns = [
     path('self/', SelfUserInfoViewSet.as_view({'get': 'retrieve', 'put': 'update'}), name='user-self'),
     path('updatepassword', UpdatePassword.as_view() , name="updatepwd"),
     path('log', views.logout_all_users, name="ff"),
-    path('tes', views.Test, name= "fff")
+    path('tes', views.Test, name= "fff"),
+    path('parking', ParkingAPIView.as_view(), name="parking_api"),
+    path('parking/<int:pk>/', ParkingAPIView.as_view(), name="parking_detail_api")
 
 ]
