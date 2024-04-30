@@ -1,2 +1,6 @@
-# Ignore frontend directory
-FrontEnd/
+.idea
+Backend/parki
+.vscode
+*.pyc
+__pycache__/
+*.sqlite3

@@ -1,0 +1,43 @@
+name: frontend
+description: "A new Flutter project."
+publish_to: 'none' 
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.3.2 <4.0.0'
+
+
+dependencies:
+  flutter:
+    sdk: flutter
+  dio: ^4.0.6
+  flutter_bloc: ^8.0.1
+  equatable: ^2.0.3
+  google_fonts: ^6.2.1
+  ionicons: ^0.2.1
+  cupertino_icons: ^1.0.6
+  geolocator: ^8.2.1
+  url_launcher: ^6.1.2
+  pinput: ^2.2.12
+  html: ^0.15.0
+  shared_preferences: ^2.2.3
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+
+  flutter_lints: ^3.0.0
+
+
+flutter:
+  uses-material-design: true
+  
+  assets :
+    - images/
+    - images/parkings/
+
+     
+
+  
