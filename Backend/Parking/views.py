@@ -13,7 +13,7 @@ from .Services.UserServices import get_checkinhour  # Adjust the import path as 
 from django.contrib.auth import login, authenticate, logout
 from django.shortcuts import render, redirect
 from django import forms
-import logging
+
 
 from .UserSerializers import PublicUserInfoSerializer, ChangePasswordSerializer, SelfUserInfoSerializer
 from .UserSerializers import PhoneNumberSerializer
