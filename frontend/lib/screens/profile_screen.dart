@@ -17,7 +17,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   late String name;
   late String phone;
   late List<String> vehicles;
-  late bool isLoading = false;
+  late bool isLoading = true;
 
   @override
   void initState() {
@@ -52,11 +52,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
         isLoading = false;
       });
     } else {
-      print('Failed to fetch user profile');
+        print('Failed to fetch user profile');
+        setState(() {
+          isLoading = false; // Error occurred, set isLoading to false
+        });
+      }
+    } catch (e) {
+      print('Error fetching user profile: $e');
+      setState(() {
+        isLoading = false; // Exception occurred, set isLoading to false
+      });
     }
-  } catch (e) {
-    print('Error fetching user profile: $e');
-  }
 }
 
   @override

@@ -1,12 +1,9 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:frontend/screens/home_screen.dart';
 import 'package:frontend/screens/login_screen.dart';
-import 'package:frontend/screens/phone_verif_screen.dart';
 import 'package:dio/dio.dart';
-import 'package:html/parser.dart' as htmlParser;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class RegScreen extends StatefulWidget {
   const RegScreen({Key? key}) : super(key: key);
@@ -56,10 +53,38 @@ Future<void> registerUser() async {
     if (response.statusCode == 201) {
       // Successful registration
       print('User registered successfully');
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => HomePage()),
+      var url = 'http://10.0.2.2:8000/loginAPI';
+      //var phoneNumber = '+216${phoneNumberController.text}';
+      var response = await dio.post(
+        url,
+        data: {
+          'phone_number': phoneNumber,
+          'password': passwordController.text,
+        },
+        options: Options(
+          contentType: Headers.jsonContentType,
+          validateStatus: (status) => status != null && status <= 500,
+        ),
       );
+
+    String cookieHeader = response.headers['set-cookie'].toString();
+    print(cookieHeader);
+    // Extract session ID and CSRF token
+    String sessionId = _extractSessionId(cookieHeader);
+    String csrfToken = _extractCsrfToken(cookieHeader);
+    print("sessionid:  "); print(sessionId);
+    print("csrftoken:  "); print(csrfToken);
+    // Save session ID and CSRF token to shared preferences
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('sessionId', sessionId);
+    await prefs.setString('csrfToken', csrfToken);
+
+    // Navigate to the home page
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => HomePage()),
+    );
+
     } else {
       print('Failed to register user: ${response.statusCode}');
       var responseData = response.data;
@@ -94,6 +119,32 @@ Future<void> registerUser() async {
   }
 }
 
+ // Function to extract session ID from Cookie header
+String _extractSessionId(String cookieHeader) {
+ List<String> cookies = cookieHeader.split(RegExp(r'[;,]'));
+
+  for (String cookie in cookies) {
+    String trimmedCookie = cookie.trim();
+    print("trimmed cookie part");
+    print (trimmedCookie);
+    if (trimmedCookie.startsWith('[sessionid=')) {
+      return trimmedCookie.substring('[sessionid='.length);
+    }
+  }
+  return '';
+}
+
+// Function to extract CSRF token from Cookie header
+String _extractCsrfToken(String cookieHeader) {
+List<String> cookies = cookieHeader.split(RegExp(r'[;,]'));
+  for (String cookie in cookies) {
+    String trimmedCookie = cookie.trim();
+    if (trimmedCookie.startsWith('csrftoken=')) {
+      return trimmedCookie.substring('csrftoken='.length);
+    }
+  }
+  return '';
+}
   @override
   Widget build(BuildContext context) {
     return Scaffold(

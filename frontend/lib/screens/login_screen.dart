@@ -65,7 +65,6 @@ class _LoginScreenState extends State<loginScreen> {
         // Extract Cookie header
     String cookieHeader = response.headers['set-cookie'].toString();
 print(cookieHeader);
-print("we've got this");
     // Extract session ID and CSRF token
     String sessionId = _extractSessionId(cookieHeader);
     String csrfToken = _extractCsrfToken(cookieHeader);
