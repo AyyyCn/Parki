@@ -24,6 +24,75 @@ class _ProfileScreenState extends State<ProfileScreen> {
     super.initState();
     fetchUserProfile();
   }
+  Future<void> logOutUser() async {
+    setState(() {
+      isLoading = true;
+    });
+    var dio = Dio();
+    var url = 'http://10.0.2.2:8000/logoutAPI';
+
+    try {
+      var response = await dio.post(
+        url,
+      );
+
+      if (response.statusCode == 200) {
+        Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => loginScreen()),
+    );
+    String cookieHeader = response.headers['set-cookie'].toString();
+    print(cookieHeader);
+    // reset session ID and CSRF token to shared preferences
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('sessionId', '');
+    await prefs.setString('csrfToken', '');
+      } else {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text('Logout Failed'),
+              content: Text('Try again later'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
+      }
+    } catch (e) {
+      // Handle unexpected errors
+      print('Error: $e');
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Error'),
+            content: Text('An unexpected error occurred.'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+  // 652416852185421
  
   Future<void> fetchUserProfile() async {
   try {
@@ -107,12 +176,32 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     width: double.infinity,
                     child: ElevatedButton(
                       onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => loginScreen(),
-                          ),
-                        );
+                        // Show alert to make sure user really wants to log out
+                        showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: Text('Log Out'),
+                          content: Text('You\'re about to log out. Continue?'),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.pop(context);
+                                              },
+                                              child: Text('Cancel'),
+                                            ),
+                                            TextButton(
+                                              onPressed: () {
+                                                logOutUser();
+                                              },
+                                              child: Text('Continue'),
+                                            ),
+                                          ],
+                                          
+                                          
+                                        );
+                        },
+                      );
                       },
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.all(15),
