@@ -92,18 +92,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
       });
     }
   }
-  // 652416852185421
+  
  
   Future<void> fetchUserProfile() async {
   try {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? sessionId = prefs.getString('sessionId');
     String? csrfToken = prefs.getString('csrfToken');
-    print("session id"); 
-    print(sessionId);
-    print("csrftoken"); 
-    print(csrfToken);
-
     var dio = Dio();
     dio.options.headers['Cookie'] = 'sessionid=$sessionId; csrftoken=$csrfToken';
 

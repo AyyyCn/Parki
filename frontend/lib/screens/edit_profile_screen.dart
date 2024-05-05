@@ -50,7 +50,6 @@ class _EditProfilePageState extends State<EditProfileScreen> {
 
     if (response.statusCode == 200) {
       final userData = response.data;
-      isLoading=true;
       setState(() {
         first_name = userData['first_name'].toString() ; // Access 'first_name' with null check
         last_name = userData['last_name'].toString() ;
@@ -301,7 +300,7 @@ Future<void> updateUserProfile() async {
           ? Center(
               child: CircularProgressIndicator(), // Show loading indicator
             )
-          : Container(
+          :  Container(
         padding: EdgeInsets.only(left: 16, top: 25, right: 16),
         child: GestureDetector(
           onTap: () {
