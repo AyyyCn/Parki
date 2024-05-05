@@ -15,7 +15,7 @@ class CustomBottomNavigationBar extends StatelessWidget {
       onTap: (int index) {
         switch (index) {
           case 0:
-            Navigator.push(
+            Navigator.pushReplacement(
               context,
               MaterialPageRoute(builder: (context) => HomePage()),
             );

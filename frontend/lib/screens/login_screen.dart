@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:frontend/auth_service.dart';
 import 'package:frontend/screens/home_screen.dart';
 import 'package:frontend/screens/reg_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -15,7 +16,24 @@ class loginScreen extends StatefulWidget {
 class _LoginScreenState extends State<loginScreen> {
   TextEditingController phoneNumberController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
-  bool isLoading = false;
+  
+  @override
+  void initState() {
+    super.initState();
+    checkLoginStatus(); // Check login status on app startup
+  }
+
+  Future<void> checkLoginStatus() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? sessionId = prefs.getString('sessionId');
+    if (sessionId != null) {
+      // Session exists, navigate to HomeScreen
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => HomePage()),
+      );
+    }
+  }
 
   Future<void> loginUser() async {
     if (phoneNumberController.text.isEmpty || passwordController.text.isEmpty) {
@@ -41,7 +59,6 @@ class _LoginScreenState extends State<loginScreen> {
     }
 
     setState(() {
-      isLoading = true;
     });
 
     var dio = Dio();
@@ -63,8 +80,9 @@ class _LoginScreenState extends State<loginScreen> {
 
       if (response.statusCode == 200) {
         // Extract Cookie header
+    AuthService.login();
     String cookieHeader = response.headers['set-cookie'].toString();
-print(cookieHeader);
+    print(cookieHeader);
     // Extract session ID and CSRF token
     String sessionId = _extractSessionId(cookieHeader);
     String csrfToken = _extractCsrfToken(cookieHeader);
@@ -121,11 +139,7 @@ print(cookieHeader);
           );
         },
       );
-    } finally {
-      setState(() {
-        isLoading = false;
-      });
-    }
+    } 
   }
 
  // Function to extract session ID from Cookie header

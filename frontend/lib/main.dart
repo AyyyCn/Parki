@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/screens/login_screen.dart';
 import 'package:frontend/screens/reg_screen.dart';
 import 'package:frontend/screens/welcome_screen.dart';
+import 'package:frontend/screens/home_screen.dart'; // Import your HomeScreen
 import 'package:google_fonts/google_fonts.dart';
+import 'package:frontend/auth_service.dart'; // Import your AuthService
 
 void main() {
   runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  const MyApp({Key? key});
 
   @override
   Widget build(BuildContext context) {
@@ -21,15 +24,25 @@ class MyApp extends StatelessWidget {
           Theme.of(context).textTheme,
         ),
       ),
-      home: WelcomePage(),
+      home: FutureBuilder<bool>(
+        future: AuthService.isLoggedIn(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return CircularProgressIndicator(); // Show loading indicator while checking auth state
+          } else {
+            bool isLoggedIn = snapshot.data ?? false;
+            return isLoggedIn ? HomePage() : WelcomePage(); // Show HomeScreen if logged in, otherwise show WelcomePage
+          }
+        },
+      ),
       routes: {
-      'RegScreen': (context) => RegScreen(),
-      // Other routes if any
-     },
-    onGenerateRoute: (settings) {
-    // Handle unknown routes here
-    },
-    // Other MaterialApp configurations
-     );
+        'RegScreen': (context) => RegScreen(),
+        // Other routes if any
+      },
+      onGenerateRoute: (settings) {
+        // Handle unknown routes here
+      },
+      // Other MaterialApp configurations
+    );
   }
 }

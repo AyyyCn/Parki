@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:frontend/auth_service.dart';
 import 'package:frontend/screens/edit_profile_screen.dart';
 import 'package:frontend/screens/login_screen.dart';
 import 'package:frontend/widgets/custom_bottom_navigation_bar.dart';
@@ -43,10 +44,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
     String cookieHeader = response.headers['set-cookie'].toString();
     print(cookieHeader);
-    // reset session ID and CSRF token to shared preferences
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setString('sessionId', '');
-    await prefs.setString('csrfToken', '');
+     // Clear session-related data from SharedPreferences
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.remove('sessionId');
+        await prefs.remove('csrfToken');
+    // Update isLoggedIn status to false
+        AuthService.logout();
       } else {
         showDialog(
           context: context,
