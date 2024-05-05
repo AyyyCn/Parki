@@ -297,7 +297,11 @@ Future<void> updateUserProfile() async {
           },
         ),
       ),
-      body: Container(
+      body:  isLoading
+          ? Center(
+              child: CircularProgressIndicator(), // Show loading indicator
+            )
+          : Container(
         padding: EdgeInsets.only(left: 16, top: 25, right: 16),
         child: GestureDetector(
           onTap: () {
