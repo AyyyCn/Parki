@@ -52,24 +52,63 @@ class ParkingAPIView(APIView):
         parking.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-def CalculateDistance(l1,v1, l2, v2):
+import math
+
+def calculate_haversine_distance(lat1, lon1, lat2, lon2):
     
-    return pow((l1 -l2),2) + pow((v1 - v2),2)
+    lat1 = math.radians(float(lat1))
+    lon1 = math.radians(float(lon1))
+    lat2 = math.radians(float(lat2))
+    lon2 = math.radians(float(lon2))
+
+    
+    dlon = lon2 - lon1
+    dlat = lat2 - lat1
+    a = math.sin(dlat / 2)**2 + math.cos(lat1) * math.cos(lat2) * math.sin(dlon / 2)**2
+    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+    
+    
+    radius = 6371.0
+    
+    
+    distance = radius * c
+    return distance
+
 
 
 
 class RecommandParking(View):
     def get(self, request):
-        body=json.loads(request.body)
-        print (body.longtitude)
+        try:
+            body = json.loads(request.body)
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Invalid JSON'}, status=400)
+
+        
         if 'longitude' not in body or 'latitude' not in body:
             return JsonResponse({'error': 'Missing required attributes: longitude, latitude'}, status=400)
+
+        
+        user_longitude = body.get('longitude')
+        user_latitude = body.get('latitude')
+
+        
         parkings = Parking.objects.all()
-        l=[]
-        
-        
-        print(body)
+
+        distances = []
+
         for pking in parkings:
-            distance = CalculateDistance(body.l, body.v, pking.longitude, pking.latitude)
-            l.append(distance)
-        return JsonResponse(l)
+            distance = calculate_haversine_distance(user_latitude, user_longitude, pking.latitude,  pking.longitude)
+            distances.append(({
+                'parking_id': pking.id,
+                'parking_name': pking.name,
+                'longitude': pking.longitude,
+                'latitude': pking.latitude
+            }, distance))
+        distances.sort(key=lambda x: x[1] )
+
+        if 'number' in body and int(body.get('number')) >1:
+            n= int(body.get('number'))
+            return JsonResponse(distances[:int(n)], safe= False)
+
+        return JsonResponse(distances[0], safe=False)
