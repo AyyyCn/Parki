@@ -9,9 +9,13 @@ import json
 class ParkingAPIView(APIView):
     def get(self, request):
         parkings = Parking.objects.all()
+        name_exists = request.query_params.get('name', None)
+        if name_exists:
+            pkings = parkings.filter(name=name_exists)
+            serializer = ParkingSerializer(pkings, many=True)
+            return Response(serializer.data)
         serializer = ParkingSerializer(parkings, many=True)
         return Response(serializer.data)
-
     def post(self, request):
         serializer = ParkingSerializer(data=request.data)
         if serializer.is_valid():
