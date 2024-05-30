@@ -2,7 +2,6 @@ from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm
 from django.contrib.sessions.models import Session
 from django.http import JsonResponse, HttpResponse
 from django.utils import timezone
-from rest_framework import authentication, exceptions, status
 from rest_framework.generics import UpdateAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
