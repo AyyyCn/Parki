@@ -2,11 +2,15 @@
 import 'package:flutter/material.dart';
 
 class CustomIconButton extends StatelessWidget {
+  final Widget icon;
+  final VoidCallback? onPressed; // Add this line to accept the onPressed callback
+
   const CustomIconButton({
     Key? key,
     required this.icon,
+    this.onPressed, // Add this line to accept the onPressed callback
   }) : super(key: key);
-  final Widget icon;
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -15,7 +19,7 @@ class CustomIconButton extends StatelessWidget {
         shape: BoxShape.circle,
       ),
       child: IconButton(
-        onPressed: () {},
+        onPressed: onPressed, // Use the onPressed callback here
         constraints: const BoxConstraints.tightFor(width: 40),
         color: Colors.black54,
         icon: icon,
