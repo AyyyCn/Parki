@@ -1,9 +1,11 @@
+from django.http import JsonResponse
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from .models import Parking
 from .parkingSerializers import ParkingSerializer
-
+from django.views import View
+import json
 class ParkingAPIView(APIView):
     def get(self, request):
         parkings = Parking.objects.all()
@@ -49,3 +51,25 @@ class ParkingAPIView(APIView):
 
         parking.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+def CalculateDistance(l1,v1, l2, v2):
+    
+    return pow((l1 -l2),2) + pow((v1 - v2),2)
+
+
+
+class RecommandParking(View):
+    def get(self, request):
+        body=json.loads(request.body)
+        print (body.longtitude)
+        if 'longitude' not in body or 'latitude' not in body:
+            return JsonResponse({'error': 'Missing required attributes: longitude, latitude'}, status=400)
+        parkings = Parking.objects.all()
+        l=[]
+        
+        
+        print(body)
+        for pking in parkings:
+            distance = CalculateDistance(body.l, body.v, pking.longitude, pking.latitude)
+            l.append(distance)
+        return JsonResponse(l)
