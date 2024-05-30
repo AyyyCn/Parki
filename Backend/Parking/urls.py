@@ -5,6 +5,7 @@ from . import views
 from .viewss.Userviews import PublicUserInfoViewSet, UpdatePassword, SelfUserInfoViewSet
 from .viewss import Userviews
 from .modelViews.modelViewss import UserCarAPIView,ParkingReservationAPIView,ParkingSessionAPIView
+from .parkingViews import RecommandParking
 
 UserRouter= DefaultRouter()
 UserRouter.register('touchInfo', PublicUserInfoViewSet, basename='info')
@@ -33,6 +34,6 @@ urlpatterns = [
     path('parkingreservation/', ParkingReservationAPIView.as_view(), name='parkingreservation_api'),
     path('parkingreservation/<int:pk>/', ParkingReservationAPIView.as_view(), name='parkingreservation_detail_api'),
     path('parkingsession/', ParkingSessionAPIView.as_view(), name='parkingsession_api'),
-    path('parkingsession/<int:pk>/', ParkingSessionAPIView.as_view(), name='parkingsession_detail_api')
-
+    path('parkingsession/<int:pk>/', ParkingSessionAPIView.as_view(), name='parkingsession_detail_api'),
+    path('closest' , RecommandParking.as_view(), name = 'closest Parking') 
 ]
