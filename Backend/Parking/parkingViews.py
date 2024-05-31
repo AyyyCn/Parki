@@ -84,35 +84,34 @@ def calculate_haversine_distance(lat1, lon1, lat2, lon2):
 class RecommandParking(View):
     def get(self, request):
         try:
-            body = json.loads(request.body)
-        except json.JSONDecodeError:
-            return JsonResponse({'error': 'Invalid JSON'}, status=400)
+            longitude = request.GET.get('longitude')
+            latitude = request.GET.get('latitude')
+            if not longitude or not latitude:
+                return JsonResponse({'error': 'Missing required attributes: longitude, latitude'}, status=400)
+            user_longitude = float(longitude)
+            user_latitude = float(latitude)
+        except ValueError:
+            return JsonResponse({'error': 'Invalid longitude or latitude values'}, status=400)
 
-        
-        if 'longitude' not in body or 'latitude' not in body:
-            return JsonResponse({'error': 'Missing required attributes: longitude, latitude'}, status=400)
-
-        
-        user_longitude = body.get('longitude')
-        user_latitude = body.get('latitude')
-
-        
         parkings = Parking.objects.all()
-
         distances = []
-
         for pking in parkings:
             distance = calculate_haversine_distance(user_latitude, user_longitude, pking.latitude,  pking.longitude)
             distances.append(({
-                'parking_id': pking.id,
-                'parking_name': pking.name,
+                'id': pking.id,
+                'name': pking.name,
+                'adress': pking.address,
+                'latitude': pking.latitude,
                 'longitude': pking.longitude,
-                'latitude': pking.latitude
+                'totalSpots' : pking.total_spots,
+                'availableSpots': pking.available_spots,
+                'pricePerHour' : pking.price_per_hour
             }, distance))
-        distances.sort(key=lambda x: x[1] )
-
-        if 'number' in body and int(body.get('number')) >1:
-            n= int(body.get('number'))
-            return JsonResponse(distances[:int(n)], safe= False)
-
+        distances.sort(key=lambda x: x[1])
+        
+        number = request.GET.get('number')
+        if number and int(number) > 1:
+            n = int(number)
+            return JsonResponse(distances[:n], safe=False)
+        
         return JsonResponse(distances[0], safe=False)
