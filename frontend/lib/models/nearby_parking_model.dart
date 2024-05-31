@@ -1,25 +1,34 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 class NearbyParkingModel {
+  final int id;
+  final String name;
+  final String address;
+  final int totalSpots;
+  final int availableSpots;
+  final double pricePerHour;
   final String image;
-  NearbyParkingModel({
-    required this.image,
-  });
-}
+  final double distance; 
 
-List<NearbyParkingModel> nearbyParkings = [
-   NearbyParkingModel(
-    image: "images/parkings/parking1.jpg",
-  ),
-  NearbyParkingModel(
-    image: "images/parkings/parking2.jpg",
-  ),
-  NearbyParkingModel(
-    image: "images/parkings/parking3.jpeg",
-  ),
-  NearbyParkingModel(
-    image: "images/parkings/parking4.jpg",
-  ),
-  NearbyParkingModel(
-    image: "images/parkings/parking5.jpg",
-  ),
-];
+  NearbyParkingModel({
+    required this.id,
+    required this.name,
+    required this.address,
+    required this.totalSpots,
+    required this.availableSpots,
+    required this.pricePerHour,
+    required this.image,
+    required this.distance,
+  });
+
+  factory NearbyParkingModel.fromJson(Map<String, dynamic> json) {
+    return NearbyParkingModel(
+      id: json['id'],
+      name: json['name'],
+      address: json['address'],
+      totalSpots: json['totalSpots'],
+      availableSpots: json['availableSpots'],
+      pricePerHour: json['pricePerHour'],
+      image: json['image'] ?? 'images/parkings/parking1.jpg',
+      distance: json['distance'],
+    );
+  }
+}
