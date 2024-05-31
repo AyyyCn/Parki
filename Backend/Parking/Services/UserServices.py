@@ -34,3 +34,20 @@ def pay(license_plate,parking_id):
     except ParkingSession.DoesNotExist:
         # No unpaid parking session found for this license plate
         return "No unpaid parking session found for this license plate. Please contact support."
+
+def get_all_license_plates(user):
+    """
+    Retrieve all license plates associated with a user.
+    """
+    return [car.license_plate for car in user.cars.all()]
+
+
+def add_license_plate(user, license_plate):
+    """
+    Add a new license plate for the user if it doesn't exist.
+    """
+    if not UserCar.objects.filter(user=user, license_plate=license_plate).exists():
+        UserCar.objects.create(user=user, license_plate=license_plate)
+        return f"License plate {license_plate} added successfully."
+    else:
+        return f"License plate {license_plate} already exists for this user."

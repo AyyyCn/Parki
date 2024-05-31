@@ -48,8 +48,9 @@ class CustomUser(AbstractUser):
 
     USERNAME_FIELD = 'phone_number'
     objects = CustomUserManager()
+
     def __str__(self):
-        return (str(self.first_name) +str(self.last_name) )
+        return f"{self.first_name} {self.last_name}"
 
 
 class Parking(models.Model):
@@ -71,7 +72,7 @@ class Parking(models.Model):
 
 
 class UserCar(models.Model):
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='cars')
     license_plate = models.CharField(max_length=20, unique=True)
 
     def __str__(self):
