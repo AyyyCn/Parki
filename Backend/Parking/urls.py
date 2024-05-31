@@ -1,20 +1,20 @@
 from django.urls import path
 from rest_framework.routers import DefaultRouter
-from .parkingViews import ParkingAPIView
-from . import views
-from .viewss.Userviews import PublicUserInfoViewSet, UpdatePassword, SelfUserInfoViewSet
-from .viewss import Userviews
-from .modelViews.modelViewss import UserCarAPIView,ParkingReservationAPIView,ParkingSessionAPIView
-from .parkingViews import RecommandParking
+from .views.parkingViews import ParkingAPIView
+from .import _views as view
+from .views.Userviews import PublicUserInfoViewSet, UpdatePassword, SelfUserInfoViewSet
+from .views import Userviews
+from .modelViews.modelViews import UserCarAPIView,ParkingReservationAPIView,ParkingSessionAPIView
+from .views.parkingViews import RecommendParking, ImageUploadView
 
 UserRouter= DefaultRouter()
 UserRouter.register('touchInfo', PublicUserInfoViewSet, basename='info')
 
 urlpatterns = [
-    path('', views.homepage, name = 'homepage'),
-    path('api/check_in_hour/<str:license_plate>/', views.check_in_hour, name='check_in_hour'),
-    path('register', views.register_view, name= 'signup'),
-    path('login', views.login_view, name= 'loginpage'),
+    path('', view.homepage, name = 'homepage'),
+    path('check_in_hour/<str:license_plate>/', view.check_in_hour, name='check_in_hour'),
+    path('register', view.register_view, name= 'signup'),
+    path('login', view.login_view, name= 'loginpage'),
     path('loginAPI', Userviews.login_viewJSON, name= 'loginpageAPI'),
     path('registerAPI', Userviews.register_viewJSON, name= 'signupAPI'),
 
@@ -35,5 +35,7 @@ urlpatterns = [
     path('parkingreservation/<int:pk>/', ParkingReservationAPIView.as_view(), name='parkingreservation_detail_api'),
     path('parkingsession/', ParkingSessionAPIView.as_view(), name='parkingsession_api'),
     path('parkingsession/<int:pk>/', ParkingSessionAPIView.as_view(), name='parkingsession_detail_api'),
-    path('closest' , RecommandParking.as_view(), name = 'closest Parking') 
+    path('closest' , RecommendParking.as_view(), name = 'closest Parking'), 
+    path('image/upload/', ImageUploadView.as_view(), name='image-upload')
+
 ]

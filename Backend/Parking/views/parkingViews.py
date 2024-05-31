@@ -2,10 +2,11 @@ from django.http import JsonResponse
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from .models import Parking
-from .parkingSerializers import ParkingSerializer
+from ..models import Parking
+from ..Serializers.parkingSerializers import ParkingSerializer
 from django.views import View
-import json
+from ..Services.ParkingServices import start_parking_session, exit_parking_session
+
 class ParkingAPIView(APIView):
     def get(self, request):
         parkings = Parking.objects.all()
@@ -81,7 +82,7 @@ def calculate_haversine_distance(lat1, lon1, lat2, lon2):
 
 
 
-class RecommandParking(View):
+class RecommendParking(View):
     def get(self, request):
         try:
             longitude = request.GET.get('longitude')
@@ -115,3 +116,27 @@ class RecommandParking(View):
             return JsonResponse(distances[:n], safe=False)
         
         return JsonResponse(distances[0], safe=False)
+
+
+
+class ImageUploadView(APIView):
+    def post(self, request, *args, **kwargs):
+        if 'image' not in request.FILES:
+            return Response({'error': 'No image provided'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        if 'parking_id' not in request.data:
+            return Response({'error': 'No parking_id provided'}, status=status.HTTP_400_BAD_REQUEST)
+        if 'mode' not in request.data:
+            return Response({'error': 'No mode provided'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            parking_id = int(request.data['parking_id'])
+        except ValueError:
+            return Response({'error': 'Invalid parking_id provided'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        image = request.FILES['image']
+        
+        # Process the image and parking_id here if needed
+        # For demonstration, we will just return a success message.
+        msg = start_parking_session("12ABC", parking_id)
+        return Response({'message': 'Image received successfully!', 'parking_id': parking_id,'result': msg}, status=status.HTTP_200_OK)

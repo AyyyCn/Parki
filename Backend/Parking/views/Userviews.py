@@ -13,9 +13,11 @@ from django.contrib.auth import login, authenticate, logout
 from django import forms
 import logging
 from rest_framework import viewsets
-from ..UserSerializers import PublicUserInfoSerializer, ChangePasswordSerializer, SelfUserInfoSerializer, PhoneNumberSerializer
+from ..Serializers.UserSerializers import PublicUserInfoSerializer, ChangePasswordSerializer, SelfUserInfoSerializer, PhoneNumberSerializer
 from ..models import CustomUser
 from rest_framework.decorators import api_view, permission_classes
+from django.middleware.csrf import get_token
+from django.http import JsonResponse
 
 @csrf_exempt
 @api_view(['POST'])
@@ -32,10 +34,6 @@ def register_viewJSON(request):
             return JsonResponse({'error': form.errors}, status=500)
 
 
-from django.middleware.csrf import get_token
-
-from django.http import JsonResponse
-
 
 @csrf_exempt
 @api_view(['POST'])
@@ -48,7 +46,6 @@ def login_viewJSON(request):
         form = LoginForm(data=request.data)
         print(form.is_valid())
         if form.is_valid():
-            print("dddddddddddddddddddddddd")
             phone_number = form.cleaned_data.get('phone_number')
             password = form.cleaned_data.get('password')
             user = authenticate(request, phone_number=phone_number, password=password)

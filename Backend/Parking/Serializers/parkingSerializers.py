@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Parking, UserCar, ParkingSession, ParkingReservation, ParkingSessionArchive
+from ..models import Parking, UserCar, ParkingSession, ParkingReservation, ParkingSessionArchive
 
 
 class ParkingSerializer(serializers.ModelSerializer):

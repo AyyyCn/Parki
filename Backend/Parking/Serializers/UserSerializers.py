@@ -5,9 +5,9 @@ from phonenumber_field.serializerfields import PhoneNumberField
 from rest_framework import serializers
 
 
-from .models import CustomUser
+from ..models import CustomUser
 from rest_framework import serializers
-from .models import CustomUser
+from ..models import CustomUser
 from phonenumber_field.serializerfields import PhoneNumberField
 
 

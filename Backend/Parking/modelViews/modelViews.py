@@ -4,7 +4,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from ..models import UserCar, ParkingSession, ParkingReservation
-from ..parkingSerializers import ParkingSessionSerializer, ParkingReservationSerializer, UserCarSerializer
+from ..Serializers.parkingSerializers import ParkingSessionSerializer, ParkingReservationSerializer, UserCarSerializer
 
 class BaseAPIView(APIView):
     model = None

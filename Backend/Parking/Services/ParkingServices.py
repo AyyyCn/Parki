@@ -66,3 +66,8 @@ def archive_and_delete_session(parking_session):
     )
     # Delete the original session
     parking_session.delete()
+
+def open_gate(parking_id):
+    """Opens the gate for the user to exit."""
+    #send_signal_to_gate(parking_id)
+    return "Gate opened. Thank you for your visit!"
