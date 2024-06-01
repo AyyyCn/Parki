@@ -1,4 +1,4 @@
-from django.http import JsonResponse
+from django.http import Http404, JsonResponse
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -11,10 +11,18 @@ class ParkingAPIView(APIView):
     def get(self, request):
         parkings = Parking.objects.all()
         name_exists = request.query_params.get('name', None)
+        id_exists = request.query_params.get('id', None) 
         if name_exists:
             pkings = parkings.filter(name=name_exists)
             serializer = ParkingSerializer(pkings, many=True)
             return Response(serializer.data)
+        elif id_exists:
+            try:
+                parking = Parking.objects.get(id=id_exists)
+                serializer = ParkingSerializer(parking)
+                return Response(serializer.data)
+            except Parking.DoesNotExist:
+                raise Http404
         serializer = ParkingSerializer(parkings, many=True)
         return Response(serializer.data)
     def post(self, request):

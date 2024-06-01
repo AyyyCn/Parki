@@ -274,7 +274,7 @@ Future<void> updateUserProfile() async {
           builder: (BuildContext context) {
             return AlertDialog(
               title: Text('Profile updated successfully!'),
-              content: Text('The changes you have made are saved :) '),
+              content: Text('The changes you have made are saved . '),
               actions: [
                 TextButton(
                   onPressed: () {

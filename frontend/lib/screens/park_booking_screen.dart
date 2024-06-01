@@ -1,10 +1,79 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:frontend/screens/booking_details_screen.dart';
 import 'package:frontend/widgets/custom_bottom_navigation_bar.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:async';
+import 'dart:math';
 
-class ParkBookingScreen extends StatelessWidget {
-  const ParkBookingScreen({Key? key}) : super(key: key);
+class ParkBookingScreen extends StatefulWidget {
+  @override
+  _ParkBookingScreenState createState() => _ParkBookingScreenState();
+}
+
+class _ParkBookingScreenState extends State<ParkBookingScreen> {
+  List<dynamic> parkingSessions = [];
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchParkingSessions();
+  }
+
+  Future<void> fetchParkingSessions() async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? sessionId = prefs.getString('sessionId');
+      String? csrfToken = prefs.getString('csrfToken');
+
+      var dio = Dio();
+      dio.options.headers['Cookie'] = 'sessionid=$sessionId; csrftoken=$csrfToken';
+      dio.options.headers['X-CSRFToken'] = csrfToken;
+
+      var url = 'http://10.0.2.2:8000/parkingsession';
+      var response = await dio.get(url);
+
+      // Fetch parking names and price per hour using parking IDs
+      for (var session in response.data) {
+        var parkingId = session['parking'];
+        var parkingUrl = 'http://10.0.2.2:8000/parking?id=$parkingId';
+        var parkingResponse = await dio.get(parkingUrl);
+        session['parkingName'] = parkingResponse.data['name'];
+        session['price_per_hour'] = double.tryParse(parkingResponse.data['price_per_hour'].toString()) ?? 0.0;
+      }
+
+      setState(() {
+        parkingSessions = response.data;
+        parkingSessions.sort((a, b) => DateTime.parse(b['entry_time']).compareTo(DateTime.parse(a['entry_time'])));
+        isLoading = false;
+      });
+    } catch (e) {
+      print('Error fetching parking sessions: $e');
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  double calculateCurrentPrice(DateTime entryTime, double pricePerHour) {
+    Duration duration = DateTime.now().difference(entryTime);
+    int hours = (duration.inMinutes / 60.0).ceil();
+    return hours * pricePerHour;
+  }
+
+  double calculateTotalPriceToPay() {
+    // Calculate the sum of prices for running sessions
+    double totalPrice = 0.0;
+    for (var session in parkingSessions) {
+      if (session['paid'] == false) {
+        double pricePerHour = session['price_per_hour'] ?? 0.0;
+        DateTime entryTime = DateTime.parse(session['entry_time'] ?? DateTime.now().toString());
+        double currentPrice = calculateCurrentPrice(entryTime, pricePerHour);
+        totalPrice += currentPrice;
+      }
+    }
+    return totalPrice;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -23,48 +92,57 @@ class ParkBookingScreen extends StatelessWidget {
             ),
           ],
         ),
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
+        backgroundColor: Color.fromARGB(255, 45, 139, 247),
+        foregroundColor: Colors.white,
         elevation: 1,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: ListView(
-          children: [
-            TotalPriceCard(totalPrice: 12.50),
-            SizedBox(height: 10),
-            ListView.separated(
-              physics: const BouncingScrollPhysics(),
-              shrinkWrap: true,
-              scrollDirection: Axis.vertical,
-              itemBuilder: (context, index) {
-                bool isRunning = index == 0 || index == 1;
-                return isRunning
-                    ? RunningReservationCard(
-                        parkingName: "Lafayette",
-                        startTime: "10:00 AM",
-                        price: 5.00,
-                        duration: "01:05:24",
-                        licensePlate: "ABC 123",
-                        isPaid: false,
-                        onPayPressed: () {
-                          // Implement pay functionality
-                        },
-                      )
-                    : ReservationCard(
-                        parkingName: "Parking Insat",
-                        startTime: "11:30 AM",
-                        endTime: "1:00 PM",
-                        price: 7.50,
-                        licensePlate: "200 - TN - 1234",
-                      );
-              },
-              separatorBuilder: (context, index) => const SizedBox(height: 10),
-              itemCount: 5,
+      body: isLoading
+          ? Center(child: CircularProgressIndicator())
+          : Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: ListView(
+                children: [
+                  TotalPriceCard(totalPrice: calculateTotalPriceToPay()),
+                  SizedBox(height: 10),
+                  ListView.separated(
+                    physics: const BouncingScrollPhysics(),
+                    shrinkWrap: true,
+                    scrollDirection: Axis.vertical,
+                    itemBuilder: (context, index) {
+                      var session = parkingSessions[index];
+                      bool isRunning = session['end_time'] == null;
+                      double pricePerHour = session['price_per_hour'] ?? 0.0;
+                      DateTime entryTime = DateTime.parse(session['entry_time'] ?? DateTime.now().toString());
+                      double currentPrice = calculateCurrentPrice(entryTime, pricePerHour);
+
+                      return isRunning
+                          ? RunningReservationCard(
+                              parkingName: session['parkingName'] ?? "Unknown Parking",
+                              startTime: session['entry_time'] ?? "Unknown Time",
+                              price: currentPrice,
+                              duration: "00:00:00", // Placeholder, update logic as needed
+                              licensePlate: session['license_plate'] ?? "Unknown",
+                              isPaid: session['paid'] ?? false,
+                              payTime: session['pay_time'] ?? "Unknown Time",
+                              onPayPressed: () {
+                                // Implement pay functionality
+                              },
+                            )
+                          : ReservationCard(
+                              parkingName: session['parkingName'] ?? "Unknown Parking",
+                              startTime: session['entry_time'] ?? "Unknown Time",
+                              endTime: session['end_time'] ?? "Unknown Time",
+                              payTime: session['pay_time'] ?? "Unknown Time",
+                              price: session['price'] ?? 0.0,
+                              licensePlate: session['license_plate'] ?? "Unknown",
+                            );
+                    },
+                    separatorBuilder: (context, index) => const SizedBox(height: 10),
+                    itemCount: parkingSessions.length,
+                  ),
+                ],
+              ),
             ),
-          ],
-        ),
-      ),
       bottomNavigationBar: CustomBottomNavigationBar(),
     );
   }
@@ -77,6 +155,7 @@ class RunningReservationCard extends StatefulWidget {
   final String duration;
   final String licensePlate;
   final bool isPaid;
+  final String payTime;
   final VoidCallback onPayPressed;
 
   const RunningReservationCard({
@@ -87,6 +166,7 @@ class RunningReservationCard extends StatefulWidget {
     required this.duration,
     required this.licensePlate,
     required this.isPaid,
+    required this.payTime,
     required this.onPayPressed,
   }) : super(key: key);
 
@@ -95,16 +175,18 @@ class RunningReservationCard extends StatefulWidget {
 }
 
 class _RunningReservationCardState extends State<RunningReservationCard> {
-  late Timer _timer;
+  late Timer _timer= Timer(Duration(seconds: 0), (){});
   late DateTime _startTime;
   late Duration _runningDuration;
 
   @override
   void initState() {
     super.initState();
-    _startTime = DateTime.parse("2024-01-25 10:00:00"); // Example start time, replace with actual
-    _runningDuration = Duration(hours: 1, minutes: 5, seconds: 24);
-    _startTimer();
+    _startTime = DateTime.tryParse(widget.startTime) ?? DateTime.now(); // Handle invalid dates
+    _runningDuration = Duration(); // Initialize running duration
+    if (!widget.isPaid) {
+      _startTimer();
+    }
   }
 
   void _startTimer() {
@@ -117,7 +199,9 @@ class _RunningReservationCardState extends State<RunningReservationCard> {
 
   @override
   void dispose() {
-    _timer.cancel();
+    if (_timer.isActive) {
+      _timer.cancel();
+    }
     super.dispose();
   }
 
@@ -135,6 +219,7 @@ class _RunningReservationCardState extends State<RunningReservationCard> {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(15),
       ),
+      color: widget.isPaid ? Color.fromARGB(255, 87, 97, 164) : Color.fromARGB(255, 58, 122, 133),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -142,36 +227,49 @@ class _RunningReservationCardState extends State<RunningReservationCard> {
           children: [
             Text(
               widget.parkingName,
-              style: Theme.of(context).textTheme.headline6,
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
             ),
             SizedBox(height: 10),
             Text(
               "Start Time: ${widget.startTime}",
-              style: Theme.of(context).textTheme.bodyText1,
+              style: TextStyle(color: Colors.white),
             ),
             SizedBox(height: 10),
             Text(
-              "Price: \$${widget.price.toStringAsFixed(2)}",
-              style: Theme.of(context).textTheme.bodyText1,
+              widget.isPaid ? "Paid Price: \$${widget.price.toStringAsFixed(2)}" : "Current Price: \$${widget.price.toStringAsFixed(2)}",
+              style: TextStyle(color: Colors.white),
             ),
             SizedBox(height: 10),
             Text(
               "License Plate: ${widget.licensePlate}",
-              style: Theme.of(context).textTheme.bodyText1,
+              style: TextStyle(color: Colors.white),
             ),
             SizedBox(height: 10),
-            Text(
-              "Running: ${_formatDuration(_runningDuration)}",
-              style: TextStyle(
-                color: Colors.green,
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
+            if (widget.isPaid)
+              Text(
+                "Pay Time: ${widget.payTime}",
+                style: TextStyle(
+                  color: Colors.greenAccent,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+              )
+            else
+              Text(
+                "Running: ${_formatDuration(_runningDuration)}",
+                style: TextStyle(
+                  color: Colors.orangeAccent,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
               ),
-            ),
             SizedBox(height: 10),
             if (!widget.isPaid)
               ElevatedButton(
                 onPressed: widget.onPayPressed,
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: Colors.black, backgroundColor: Colors.greenAccent, // text color
+                ),
                 child: Text("Pay"),
               ),
           ],
@@ -185,6 +283,7 @@ class ReservationCard extends StatelessWidget {
   final String parkingName;
   final String startTime;
   final String endTime;
+  final String payTime;
   final double price;
   final String licensePlate;
 
@@ -193,6 +292,7 @@ class ReservationCard extends StatelessWidget {
     required this.parkingName,
     required this.startTime,
     required this.endTime,
+    required this.payTime,
     required this.price,
     required this.licensePlate,
   }) : super(key: key);
@@ -200,71 +300,44 @@ class ReservationCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      elevation: 0.4,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.all(
-          Radius.circular(12),
-        ),
+      elevation: 4,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(15),
       ),
+      color: Color.fromARGB(255, 45, 139, 247),
       child: Padding(
-        padding: const EdgeInsets.all(10),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Text(
               parkingName,
-              style: TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
             ),
-            const SizedBox(height: 5),
-            Row(
-              children: [
-                Icon(
-                  Icons.calendar_today,
-                  color: Theme.of(context).primaryColor,
-                  size: 16,
-                ),
-                const SizedBox(width: 5),
-                Text(
-                  startTime,
-                  style: TextStyle(
-                    fontSize: 12,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 5),
-            Row(
-              children: [
-                Icon(
-                  Icons.directions_car,
-                  color: Theme.of(context).primaryColor,
-                  size: 16,
-                ),
-                const SizedBox(width: 5),
-                Text(
-                  licensePlate,
-                  style: TextStyle(
-                    fontSize: 12,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 5),
+            SizedBox(height: 10),
             Text(
-              "Price: \$${price.toStringAsFixed(2)}",
-              style: TextStyle(
-                fontSize: 12,
-              ),
+              "Start Time: $startTime",
+              style: TextStyle(color: Colors.white),
             ),
-            const SizedBox(height: 5),
+            SizedBox(height: 10),
             Text(
               "End Time: $endTime",
-              style: TextStyle(
-                fontSize: 12,
-              ),
+              style: TextStyle(color: Colors.white),
+            ),
+            SizedBox(height: 10),
+            Text(
+              "Pay Time: $payTime",
+              style: TextStyle(color: Colors.white),
+            ),
+            SizedBox(height: 10),
+            Text(
+              "Price: ${price.toStringAsFixed(2)}",
+              style: TextStyle(color: Colors.white),
+            ),
+            SizedBox(height: 10),
+            Text(
+              "License Plate: $licensePlate",
+              style: TextStyle(color: Colors.white),
             ),
           ],
         ),
@@ -286,6 +359,7 @@ class TotalPriceCard extends StatelessWidget {
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      color: Color.fromARGB(255, 58, 122, 133),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -293,21 +367,19 @@ class TotalPriceCard extends StatelessWidget {
           children: [
             Text(
               "Total Price to be Paid",
-              style: Theme.of(context).textTheme.headline6,
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
             ),
             SizedBox(height: 10),
+            Center( 
+              child:
             Text(
               "\$${totalPrice.toStringAsFixed(2)}",
-              style: Theme.of(context).textTheme.headline4?.copyWith(
-                    color: Colors.red,
-                    fontWeight: FontWeight.bold,
-                  ),
-            ),
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.amberAccent),
+            ),)
           ],
         ),
       ),
     );
   }
 }
-
 
