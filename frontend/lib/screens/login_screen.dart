@@ -246,28 +246,6 @@ List<String> cookies = cookieHeader.split(RegExp(r'[;,]'));
                       ),
                     ),
                     const SizedBox(height: 20),
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: GestureDetector(
-                        onTap: () {
-                          // Navigate to the homepage
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => HomePage(),
-                            ),
-                          );
-                        },
-                        child: Text(
-                          'Forgot Password?',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 17,
-                            color: Color.fromARGB(255, 32, 178, 166),
-                          ),
-                        ),
-                      ),
-                    ),
                     const SizedBox(height: 40),
                     GestureDetector(
                       onTap: () {

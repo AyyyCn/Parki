@@ -16,15 +16,18 @@ class _EditProfilePageState extends State<EditProfileScreen> {
   TextEditingController phoneNumberController = TextEditingController();
   TextEditingController oldPasswordController = TextEditingController();
   TextEditingController newPasswordController = TextEditingController();
+  TextEditingController plateController = TextEditingController();
+
+
   
   bool showPassword = false;
   List<String> licensePlates = [""]; // Initial list of license plates
-  TextEditingController plateController = TextEditingController();
   late String first_name;
   late String last_name;
   late String phone;
   late List<String> vehicles;
   late bool isLoading = true;
+  late List<String> licensePlatesFromDb=[""];
 
   @override
   void initState() {
@@ -64,6 +67,29 @@ class _EditProfilePageState extends State<EditProfileScreen> {
     print('Error fetching user profile: $e');
   }
 }
+
+Future<void> addLicensePlate(String newPlate) async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? sessionId = prefs.getString('sessionId');
+      String? csrfToken = prefs.getString('csrfToken');
+
+      var dio = Dio();
+      dio.options.headers['Cookie'] = 'sessionid=$sessionId; csrftoken=$csrfToken';
+      dio.options.headers['X-CSRFToken'] = csrfToken;
+
+      var url = 'http://10.0.2.2:8000/license_plate';
+      if (licensePlatesFromDb.contains(newPlate))
+        print("already exists");
+      else{
+      var response = await dio.post(url, data: {'license_plate': newPlate});
+
+    }} catch (e) {
+      print('Error adding license plate: $e');
+    }
+  }
+
+
 
 Future<void> updateUserProfile() async {
   int c=0;// to make sure 1 alert at a time
@@ -255,6 +281,7 @@ Future<void> updateUserProfile() async {
         );}
       }
       } 
+
     } catch (e) {
       print('Error updating user profile: $e');
       print('Failed to update user profile');
@@ -387,6 +414,13 @@ Future<void> updateUserProfile() async {
                   ElevatedButton(
                     onPressed: () {
                       updateUserProfile(); 
+                      print("ahoy");
+                      print(licensePlates);
+                      for (String licensePlate in licensePlates)
+                      {
+                        if(licensePlate!="")
+                          addLicensePlate(licensePlate);
+                      }
                     },
                     style: ElevatedButton.styleFrom(
                       shape: RoundedRectangleBorder(
