@@ -14,11 +14,12 @@ from django import forms
 import logging
 from rest_framework import viewsets
 from ..Serializers.UserSerializers import PublicUserInfoSerializer, ChangePasswordSerializer, SelfUserInfoSerializer, PhoneNumberSerializer
+from ..Serializers.LicencePlateSerializer import LicensePlateSerializer
 from ..models import CustomUser
 from rest_framework.decorators import api_view, permission_classes
 from django.middleware.csrf import get_token
 from django.http import JsonResponse
-
+from ..models import UserCar
 @csrf_exempt
 @api_view(['POST'])
 @permission_classes([AllowAny])
@@ -181,3 +182,21 @@ class   UpdatePassword(APIView):
             return Response(status=status.HTTP_204_NO_CONTENT)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def add_license_plate_view(request):
+    """
+    Endpoint to add a license plate for the authenticated user.
+    """
+    user = request.user
+    serializer = LicensePlateSerializer(data=request.data)
+    if serializer.is_valid():
+        license_plate = serializer.validated_data['license_plate']
+        if not UserCar.objects.filter(user=user, license_plate=license_plate).exists():
+            UserCar.objects.create(user=user, license_plate=license_plate)
+            return Response({'message': 'License plate added successfully'}, status=status.HTTP_201_CREATED)
+        else:
+            return Response({'error': 'License plate already exists'}, status=status.HTTP_400_BAD_REQUEST)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

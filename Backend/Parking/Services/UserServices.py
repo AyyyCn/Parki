@@ -1,6 +1,6 @@
 from django.utils import timezone
 from ..models import ParkingSession, ParkingSessionArchive
-
+from ..models import CustomUser, UserCar
 def get_checkinhour(license_plate):
     """
     Calculate the check in hour.
