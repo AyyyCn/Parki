@@ -20,6 +20,8 @@ from rest_framework.decorators import api_view, permission_classes
 from django.middleware.csrf import get_token
 from django.http import JsonResponse
 from ..models import UserCar
+from ..Services.UserServices import *
+from ..Services.ParkingServices import *
 @csrf_exempt
 @api_view(['POST'])
 @permission_classes([AllowAny])
@@ -185,13 +187,17 @@ class   UpdatePassword(APIView):
 
 
 
-class add_license_plate(APIView):
+class license_plate(APIView):
     """
     Endpoint to add a license plate for the authenticated user.
     """
     permission_classes = [IsAuthenticated]
     def get_object(self, queryset=None):
         return self.request.user
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        license_plates = get_all_license_plates(self.object)
+        return Response({'license_plates': license_plates}, status=status.HTTP_200_OK)
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
         serializer = LicensePlateSerializer(data=request.data)
@@ -203,3 +209,48 @@ class add_license_plate(APIView):
             else:
                 return Response({'error': 'License plate already exists'}, status=status.HTTP_400_BAD_REQUEST)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class Payment(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        license_plate = request.query_params.get('license_plate')
+        parking_id = request.query_params.get('parking_id')
+
+        if not license_plate or not parking_id:
+            return Response(
+                {'error': 'License plate and parking ID are required.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Using the service to get the cost
+        cost = get_cost_by_plate(license_plate, parking_id)
+
+        if cost is None:
+            return Response(
+                {'error': 'No unpaid parking session found for this license plate. Please contact support.'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        return Response({'cost': cost}, status=status.HTTP_200_OK)
+    def post(self, request, *args, **kwargs):
+            license_plate = request.data.get('license_plate')
+            parking_id = request.data.get('parking_id')
+
+            if not license_plate or not parking_id:
+                return Response(
+                    {'error': 'License plate and parking ID are required.'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            # Process the payment
+            payment_result = pay(request.user, license_plate, parking_id)
+
+            if payment_result == "Payment successful. Thank you! Please leave within 15 minutes.":
+                return Response({'message': payment_result}, status=status.HTTP_200_OK)
+            elif payment_result == "Parking is free. Thank you!":
+                return Response({'message': payment_result}, status=status.HTTP_200_OK)
+            elif payment_result == "Insufficient balance. Please top up your account.":
+                return Response({'error': payment_result}, status=status.HTTP_402_PAYMENT_REQUIRED)
+            else:
+                return Response({'error': payment_result}, status=status.HTTP_404_NOT_FOUND)

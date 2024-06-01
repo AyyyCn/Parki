@@ -20,11 +20,14 @@ def get_user_by_id(user_id):
     """
     return get_object_or_404(CustomUser, id=user_id)
 
-add_license_plate(get_user_by_id(1), "243TUN23")
+start_parking_session("123Soleil", 1)
 
-
-
-"""start_parking_session("ABC123", 1)
+"""result = exit_parking_session("123Soleil", 1)
+print(get_all_license_plates(get_user_by_id(4)))
+print(get_credit(get_user_by_id(4)))
+print(result)
+print(get_cost_by_plate("123Soleil", 1))
+print(pay(get_user_by_id(4), "123Soleil", 1))
 
 start_parking_session("audia7", 1)
 

@@ -43,7 +43,7 @@ class CustomUser(AbstractUser):
     country = models.CharField(max_length=100, default=None, null=True)
     updated_at = models.DateTimeField(auto_now=True)
     subscription = models.IntegerField(default=None, null=True)
-    credit = models.IntegerField(default=None, null=True)
+    credit = models.IntegerField(default=50, null=True)
     username = None
 
     USERNAME_FIELD = 'phone_number'
@@ -91,14 +91,17 @@ class ParkingSession(models.Model):
 
     def calculate_duration(self):
         """Calculate the total duration of the parking session in hours."""
-        if self.exit_time:
-            return (self.exit_time - self.entry_time).total_seconds() / 3600.0
+
+        now = timezone.now()
+        return (now - self.entry_time).total_seconds() / 3600.0
         return 0
 
     def calculate_cost(self):
         """Calculate the cost of the parking session."""
         duration = self.calculate_duration()
-        return duration * self.parking.price_per_hour
+        if duration<1:
+            duration = 5
+        return duration * float(self.parking.price_per_hour)
 
 
 class ParkingReservation(models.Model):

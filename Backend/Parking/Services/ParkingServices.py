@@ -22,7 +22,7 @@ def start_parking_session(license_plate, parking_id):
         entry_time=timezone.now(),
         paid=False  # Assume unpaid at start
     )
-
+    #send to front signal session started
     return "Welcome! Your parking session has started. Please pay before exiting."
 
 def exit_parking_session(license_plate,parking_id):
@@ -45,8 +45,9 @@ def exit_parking_session(license_plate,parking_id):
                 return "You stayed extra and need to pay extra."
 
             archive_and_delete_session(parking_session)
-
+            #send to front signal session ended
             return "Gate opened. Thank you for your visit!"
+        
         else:
             # If the session is not paid, inform the user/payment required
             return "Payment required. Please pay to exit."
