@@ -2,7 +2,7 @@ from django.urls import path
 from rest_framework.routers import DefaultRouter
 from .views.parkingViews import ParkingAPIView
 from .import _views as view
-from .views.Userviews import PublicUserInfoViewSet, UpdatePassword, SelfUserInfoViewSet
+from .views.Userviews import PublicUserInfoViewSet, UpdatePassword, SelfUserInfoViewSet,add_license_plate
 from .views import Userviews
 from .modelViews.modelViews import UserCarAPIView,ParkingReservationAPIView,ParkingSessionAPIView
 from .views.parkingViews import RecommendParking, ImageUploadView
@@ -36,6 +36,6 @@ urlpatterns = [
     path('parkingsession/', ParkingSessionAPIView.as_view(), name='parkingsession_api'),
     path('parkingsession/<int:pk>/', ParkingSessionAPIView.as_view(), name='parkingsession_detail_api'),
     path('closest' , RecommendParking.as_view(), name = 'closest Parking'), 
-    path('image/upload/', ImageUploadView.as_view(), name='image-upload')
-
+    path('image/upload/', ImageUploadView.as_view(), name='image-upload'), #this is the endpoint for uploading images from camera
+    path ('add_license_plate', add_license_plate.as_view(), name='add_license_plate')
 ]

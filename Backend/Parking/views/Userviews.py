@@ -184,19 +184,22 @@ class   UpdatePassword(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-@api_view(['POST'])
-@permission_classes([IsAuthenticated])
-def add_license_plate_view(request):
+
+class add_license_plate(APIView):
     """
     Endpoint to add a license plate for the authenticated user.
     """
-    user = request.user
-    serializer = LicensePlateSerializer(data=request.data)
-    if serializer.is_valid():
-        license_plate = serializer.validated_data['license_plate']
-        if not UserCar.objects.filter(user=user, license_plate=license_plate).exists():
-            UserCar.objects.create(user=user, license_plate=license_plate)
-            return Response({'message': 'License plate added successfully'}, status=status.HTTP_201_CREATED)
-        else:
-            return Response({'error': 'License plate already exists'}, status=status.HTTP_400_BAD_REQUEST)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    permission_classes = [IsAuthenticated]
+    def get_object(self, queryset=None):
+        return self.request.user
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        serializer = LicensePlateSerializer(data=request.data)
+        if serializer.is_valid():
+            license_plate = serializer.validated_data['license_plate']
+            if not UserCar.objects.filter(user=self.object, license_plate=license_plate).exists():
+                UserCar.objects.create(user=self.object, license_plate=license_plate)
+                return Response({'message': 'License plate added successfully'}, status=status.HTTP_201_CREATED)
+            else:
+                return Response({'error': 'License plate already exists'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
