@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:frontend/screens/login_screen.dart';
 import 'package:frontend/screens/profile_screen.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class EditProfileScreen extends StatefulWidget {
@@ -21,20 +22,55 @@ class _EditProfilePageState extends State<EditProfileScreen> {
 
   
   bool showPassword = false;
-  List<String> licensePlates = [""]; // Initial list of license plates
   late String first_name;
   late String last_name;
   late String phone;
-  late List<String> vehicles;
   late bool isLoading = true;
-  late List<String> licensePlatesFromDb=[""];
 
   @override
   void initState() {
     super.initState();
     fetchUserProfile();
+    fetchLicensePlates();
   }
- 
+
+   late List<String> licensePlates ; // Initial list of license plates
+
+
+  Future<void> fetchLicensePlates() async {
+  try {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? sessionId = prefs.getString('sessionId');
+    String? csrfToken = prefs.getString('csrfToken');
+
+    var dio = Dio();
+    dio.options.headers['Cookie'] = 'sessionid=$sessionId; csrftoken=$csrfToken';
+    dio.options.headers['X-CSRFToken'] = csrfToken;
+
+    var url = 'http://10.0.2.2:8000/license_plate';
+    var response = await dio.get(url);
+
+    if (response.statusCode == 200) {
+      var responseData = response.data;
+      print('Response data: $responseData');
+
+      if (responseData is Map && responseData.containsKey('license_plates')) {
+        setState(() {
+          licensePlates = List<String>.from(responseData['license_plates']);
+        });
+      } else {
+        print('License plates data is not in the expected format');
+      }
+    } else {
+      print('Failed to fetch license plates');
+    }
+  } catch (e) {
+    print('Error fetching license plates: $e');
+  }
+}
+
+
+
   Future<void> fetchUserProfile() async {
   try {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -57,7 +93,6 @@ class _EditProfilePageState extends State<EditProfileScreen> {
         first_name = userData['first_name'].toString() ; // Access 'first_name' with null check
         last_name = userData['last_name'].toString() ;
         phone = userData['phone_number']['national_number'].toString() ; // Access 'phone_number' with null check
-        //vehicles = List<String>.from(userData['vehicles']); // Uncomment and modify if 'vehicles' is an array in the response
         isLoading = false;
       });
     } else {
@@ -79,7 +114,7 @@ Future<void> addLicensePlate(String newPlate) async {
       dio.options.headers['X-CSRFToken'] = csrfToken;
 
       var url = 'http://10.0.2.2:8000/license_plate';
-      if (licensePlatesFromDb.contains(newPlate))
+      if (licensePlates.contains(newPlate))
         print("already exists");
       else{
       var response = await dio.post(url, data: {'license_plate': newPlate});
@@ -311,171 +346,121 @@ Future<void> updateUserProfile() async {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        elevation: 1,
+        backgroundColor: Colors.blue,
+        elevation: 0,
         leading: IconButton(
           icon: Icon(
             Icons.arrow_back,
-            color: Colors.blue,
+            color: Colors.white,
           ),
           onPressed: () {
-            Navigator.pop(context); // Navigate back to the profile screen
+            Navigator.pop(context);
           },
         ),
-      ),
-      body:  isLoading
-          ? Center(
-              child: CircularProgressIndicator(), // Show loading indicator
-            )
-          :  Container(
-        padding: EdgeInsets.only(left: 16, top: 25, right: 16),
-        child: GestureDetector(
-          onTap: () {
-            FocusScope.of(context).unfocus();
-          },
-          child: ListView(
-            children: [
-              Text(
-                "Edit Profile",
-                style: TextStyle(fontSize: 25, fontWeight: FontWeight.w500),
-              ),
-              SizedBox(
-                height: 35,
-              ),
-              buildTextField("First Name",firstNameController, false,first_name),
-              buildTextField("Last Name", lastNameController, false,last_name),
-              buildTextField("Phone Number", phoneNumberController, false,phone),
-              buildTextField("Old Password",oldPasswordController, true, "********"),
-              buildTextField("New Password",newPasswordController, true, "********"),
-              SizedBox(height: 10),
-              Text(
-                "License Plates",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 10),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: licensePlates.map((plate) {
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 8.0),
-                    child: Text(plate),
-                  );
-                }).toList(),
-              ),
-              SizedBox(height: 10),
-              Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: plateController,
-                      decoration: InputDecoration(
-                        labelText: "Add License Plate",
-                      ),
-                    ),
-                  ),
-                  IconButton(
-                    icon: Icon(Icons.add),
-                    onPressed: () {
-                      String newPlate = plateController.text.trim();
-                      if (newPlate.isNotEmpty) {
-                        setState(() {
-                          licensePlates.add(newPlate);
-                          plateController.clear();
-                        });
-                      }
-                    },
-                  ),
-                ],
-              ),
-              SizedBox(
-                height: 35,
-              ),
-              ButtonBar(
-                alignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  OutlinedButton(
-                    onPressed: () {
-                      Navigator.pop(context); // Navigate back to the profile screen
-                    },
-                    style: OutlinedButton.styleFrom(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                    ),
-                    child: Text(
-                      "CANCEL",
-                      style: TextStyle(
-                        fontSize: 14,
-                        letterSpacing: 2.2,
-                        color: Colors.black,
-                      ),
-                    ),
-                  ),
-                  ElevatedButton(
-                    onPressed: () {
-                      updateUserProfile(); 
-                      print("ahoy");
-                      print(licensePlates);
-                      for (String licensePlate in licensePlates)
-                      {
-                        if(licensePlate!="")
-                          addLicensePlate(licensePlate);
-                      }
-                    },
-                    style: ElevatedButton.styleFrom(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      backgroundColor: Colors.blue,
-                    ),
-                    child: Text(
-                      "SAVE",
-                      style: TextStyle(
-                        fontSize: 14,
-                        letterSpacing: 2.2,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
+        title: Text(
+          'Edit Profile',
+          style: GoogleFonts.poppins(
+            color: Colors.white,
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
           ),
         ),
       ),
+      body: isLoading
+          ? Center(
+              child: CircularProgressIndicator(),
+            )
+          : SingleChildScrollView(
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  buildTextField("First Name", firstNameController, false, first_name),
+                  buildTextField("Last Name", lastNameController, false, last_name),
+                  buildTextField("Phone Number", phoneNumberController, false, phone),
+                  buildTextField("Old Password", oldPasswordController, true, "********"),
+                  buildTextField("New Password", newPasswordController, true, "********"),
+                  SizedBox(height: 20),
+                  Text(
+                    "License Plates",
+                    style: GoogleFonts.poppins(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  Wrap(
+                    spacing: 8,
+                    children: licensePlates.map((plate) {
+                      return Chip(
+                        label: Text(plate),
+                        onDeleted: () {
+                          setState(() {
+                            licensePlates.remove(plate);
+                          });
+                        },
+                      );
+                    }).toList(),
+                  ),
+                  TextField(
+                    controller: plateController,
+                    decoration: InputDecoration(
+                      labelText: 'Add A New Plate',
+                      border: OutlineInputBorder(),
+                    ),
+                    onSubmitted: (value) {
+                      addLicensePlate(value);
+                      plateController.clear();
+                    },
+                  ),
+                  SizedBox(height: 40),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        padding: EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      onPressed: updateUserProfile,
+                      child: Text(
+                        'Save Changes',
+                        style: GoogleFonts.poppins(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
     );
   }
 
-  Widget buildTextField(
-      String labelText,TextEditingController controller,bool isPasswordTextField, String placeholder) {
+  Widget buildTextField(String labelText, TextEditingController controller, bool isPassword, String placeholder) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 35.0),
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: TextField(
         controller: controller,
-        obscureText: isPasswordTextField ? showPassword : false,
+        obscureText: isPassword ? !showPassword : false,
         decoration: InputDecoration(
-          suffixIcon: isPasswordTextField
+          labelText: labelText,
+          hintText: placeholder,
+          border: OutlineInputBorder(),
+          suffixIcon: isPassword
               ? IconButton(
+                  icon: Icon(
+                    showPassword ? Icons.visibility : Icons.visibility_off,
+                  ),
                   onPressed: () {
                     setState(() {
                       showPassword = !showPassword;
                     });
                   },
-                  icon: Icon(
-                    Icons.remove_red_eye,
-                    color: Colors.grey,
-                  ),
                 )
               : null,
-          contentPadding: EdgeInsets.only(bottom: 3),
-          labelText: labelText,
-          floatingLabelBehavior: FloatingLabelBehavior.always,
-          hintText: placeholder,
-          hintStyle: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
-          ),
         ),
       ),
     );

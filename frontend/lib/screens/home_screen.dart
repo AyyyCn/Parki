@@ -17,7 +17,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  late String name;
+  late String name="";
   late bool isLoading = true;
   late String locationMessage = 'Current Location';
   late double latitude = 0;
