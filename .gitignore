@@ -1,6 +1,7 @@
 .idea
 Backend/parki
 Backend/myvenv
+LPR
 .vscode
 *.pyc
 __pycache__/

@@ -2,7 +2,7 @@ import pytesseract
 from PIL import Image, ImageEnhance, ImageFilter
 
 
-image_path = 'car2.jpg'
+image_path = 'car2.jpeg'
 
 try:
     image = Image.open(image_path)
