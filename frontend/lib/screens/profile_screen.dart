@@ -167,111 +167,128 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFF42A5F5), Color(0xFF5C6BC0)],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
+Widget build(BuildContext context) {
+  return Scaffold(
+    body: CustomScrollView(
+      slivers: [
+        SliverAppBar(
+          backgroundColor: Colors.purple, // Set app bar color to purple
+          title: Text(
+            'Your Profile',
+            style: TextStyle(color: Colors.white), // Set text color to white
+          ),
+          actions: [
+            IconButton(
+              icon: Icon(Icons.account_circle),
+              color: Colors.white,
+              onPressed: () {}
+                
+            ),
+          ],
+          floating: true,
+          elevation: 0,
+        ),
+        SliverPadding(
+          padding: const EdgeInsets.all(20),
+          sliver: SliverToBoxAdapter(
+            child: isLoading
+              ? Center(child: CircularProgressIndicator())
+              : SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 10),
+                      profileItem('Name', name, CupertinoIcons.person),
+                      const SizedBox(height: 10),
+                      profileItem('Phone', phone, CupertinoIcons.phone),
+                      const SizedBox(height: 10),
+                      profileItem('Vehicles', vehicles, Icons.directions_car),
+                      const SizedBox(height: 20),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => EditProfileScreen(),
+                              ),
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.all(15),
+                            backgroundColor: Color.fromARGB(255, 216, 219, 234),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                          ),
+                          child: Text(
+                            'Edit Profile',
+                            style: GoogleFonts.lato(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            // Show alert to make sure user really wants to log out
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  title: Text('Log Out'),
+                                  content: Text('You\'re about to log out. Continue?'),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.pop(context);
+                                      },
+                                      child: Text('Cancel'),
+                                    ),
+                                    TextButton(
+                                      onPressed: () {
+                                        logOutUser();
+                                      },
+                                      child: Text('Continue'),
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.all(15),
+                            backgroundColor: Color.fromARGB(255, 241, 209, 207),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                          ),
+                          child: Text(
+                            'Sign Out',
+                            style: GoogleFonts.lato(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
           ),
         ),
-        child: isLoading
-            ? Center(child: CircularProgressIndicator())
-            : SingleChildScrollView(
-                child: Column(
-                  children: [
-                    const SizedBox(height: 50),
-                    profileItem('Name', name, CupertinoIcons.person),
-                    const SizedBox(height: 10),
-                    profileItem('Phone', phone, CupertinoIcons.phone),
-                    const SizedBox(height: 10),
-                    profileItem('Vehicles', vehicles, Icons.directions_car),
-                    const SizedBox(height: 20),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => EditProfileScreen(),
-                            ),
-                          );
-                        },
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.all(15),
-                          backgroundColor: Color.fromARGB(255, 216, 219, 234),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30),
-                          ),
-                        ),
-                        child: Text(
-                          'Edit Profile',
-                          style: GoogleFonts.lato(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          // Show alert to make sure user really wants to log out
-                          showDialog(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return AlertDialog(
-                                title: Text('Log Out'),
-                                content: Text('You\'re about to log out. Continue?'),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () {
-                                      Navigator.pop(context);
-                                    },
-                                    child: Text('Cancel'),
-                                  ),
-                                  TextButton(
-                                    onPressed: () {
-                                      logOutUser();
-                                    },
-                                    child: Text('Continue'),
-                                  ),
-                                ],
-                              );
-                            },
-                          );
-                        },
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.all(15),
-                          backgroundColor: Color.fromARGB(255, 241, 209, 207),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30),
-                          ),
-                        ),
-                        child: Text(
-                          'Sign Out',
-                          style: GoogleFonts.lato(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-      ),
-      bottomNavigationBar: CustomBottomNavigationBar(),
-    );
-  }
+      ],
+    ),
+    bottomNavigationBar: CustomBottomNavigationBar(),
+  );
+}
+
 
   Widget profileItem(String title, dynamic data, IconData iconData) {
     return Container(

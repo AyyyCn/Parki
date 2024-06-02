@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:frontend/widgets/custom_bottom_navigation_bar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:async';
-import 'dart:math';
 
 class ParkBookingScreen extends StatefulWidget {
   @override
@@ -75,23 +74,27 @@ class _ParkBookingScreenState extends State<ParkBookingScreen> {
     return totalPrice;
   }
 
-  @override
+ @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Row(
-          children: [
-            Icon(Icons.access_time, size: 20),
-            SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                "Track your reservations",
-                style: TextStyle(fontSize: 18),
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-          ],
-        ),
+  children: [
+    SizedBox(width: 10),
+    Expanded(
+      child: Text(
+        "Your Parking \nSessions",
+        overflow: TextOverflow.visible,
+        style: TextStyle(color: Colors.white), // Set text color to white
+      ),
+    ),
+    Spacer(), // Add spacer to push the money icon to the right
+    Icon(
+      Icons.access_time,
+      color: Colors.white, // Set icon color to white
+    ),
+  ],
+),
         backgroundColor: Color.fromARGB(255, 45, 139, 247),
         foregroundColor: Colors.white,
         elevation: 1,

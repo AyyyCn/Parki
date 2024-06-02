@@ -170,51 +170,52 @@ List<String> cookies = cookieHeader.split(RegExp(r'[;,]'));
 }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Stack(
-        children: [
-          Container(
-            height: double.infinity,
-            width: double.infinity,
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  Color(0xFFC4DEF6),
-                  Color.fromARGB(255, 102, 187, 236),
-                ],
-              ),
+Widget build(BuildContext context) {
+  return Scaffold(
+    body: Stack(
+      children: [
+        Container(
+          height: double.infinity,
+          width: double.infinity,
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                Color(0xFFC4DEF6),
+                Color.fromARGB(255, 102, 187, 236),
+              ],
             ),
-            child: const Padding(
-              padding: EdgeInsets.only(top: 60.0, left: 22),
-              child: Text(
-                'Hello\nSign in!',
-                style: TextStyle(
-                  fontSize: 30,
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
+          ),
+          child: const Padding(
+            padding: EdgeInsets.only(top: 60.0, left: 22),
+            child: Text(
+              'Hello\nSign in!',
+              style: TextStyle(
+                fontSize: 30,
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
               ),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.only(top: 200.0),
-            child: Container(
-              decoration: const BoxDecoration(
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(40),
-                  topRight: Radius.circular(40),
-                ),
-                color: Colors.white,
+        ),
+        Padding(
+          padding: const EdgeInsets.only(top: 200.0),
+          child: Container(
+            decoration: const BoxDecoration(
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(40),
+                topRight: Radius.circular(40),
               ),
-              height: double.infinity,
-              width: double.infinity,
-              child: Padding(
-                padding: const EdgeInsets.only(left: 18.0, right: 18),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    TextField(
+              color: Colors.white,
+            ),
+            height: double.infinity,
+            width: double.infinity,
+            child: Padding(
+              padding: const EdgeInsets.only(left: 18.0, right: 18),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Expanded(
+                    child: TextField(
                       /*inputFormatters: [
                         FilteringTextInputFormatter.digitsOnly
                       ], // Accepts only numeric input*/
@@ -222,35 +223,34 @@ List<String> cookies = cookieHeader.split(RegExp(r'[;,]'));
                       keyboardType: TextInputType.phone,
                       decoration: InputDecoration(
                         suffixIcon: Icon(Icons.phone, color: Colors.grey),
-                        label: Text(
-                          'Phone Number',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Color.fromARGB(255, 0, 0, 0),
-                          ),
+                        labelText: 'Phone Number',
+                        labelStyle: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Color.fromARGB(255, 0, 0, 0),
                         ),
                       ),
                     ),
-                    TextFormField(
+                  ),
+                  Expanded(
+                    child: TextFormField(
                       obscureText: true,
                       controller: passwordController,
                       decoration: InputDecoration(
                         suffixIcon: Icon(Icons.lock, color: Colors.grey),
-                        label: Text(
-                          'Password',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Color.fromARGB(255, 0, 0, 0),
-                          ),
+                        labelText: 'Password',
+                        labelStyle: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Color.fromARGB(255, 0, 0, 0),
                         ),
                       ),
                     ),
-                    const SizedBox(height: 20),
-                    const SizedBox(height: 40),
-                    GestureDetector(
-                      onTap: () {
-                        loginUser();
-                      },
+                  ),
+                  const SizedBox(height: 20),
+                  const SizedBox(height: 40),
+                  GestureDetector(
+                    onTap: () {
+                      loginUser();
+                    },
                     child: Container(
                       height: 55,
                       width: 300,
@@ -274,51 +274,51 @@ List<String> cookies = cookieHeader.split(RegExp(r'[;,]'));
                         ),
                       ),
                     ),
-                    ),
-                    const SizedBox(height: 20),
-                    Align(
-                      alignment: Alignment.bottomRight,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Text(
-                            "Don't have an account?",
+                  ),
+                  const SizedBox(height: 20),
+                  Align(
+                    alignment: Alignment.bottomRight,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text(
+                          "Don't have an account?",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.grey,
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        GestureDetector(
+                          onTap: () {
+                            // Navigate to the sign-up page
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => RegScreen(),
+                              ),
+                            );
+                          },
+                          child: Text(
+                            "Sign up",
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
-                              color: Colors.grey,
+                              fontSize: 17,
+                              color: Colors.black,
                             ),
                           ),
-                          const SizedBox(height: 10),
-                          GestureDetector(
-                            onTap: () {
-                              // Navigate to the sign-up page
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => RegScreen(),
-                                ),
-                              );
-                            },
-                            child: Text(
-                              "Sign up",
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 17,
-                                color: Colors.black,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ),
-        ],
-      ),
-    );
-  }
+        ),
+      ],
+    ),
+  );
+}
 }

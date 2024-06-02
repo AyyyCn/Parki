@@ -34,7 +34,7 @@ class _EditProfilePageState extends State<EditProfileScreen> {
     fetchLicensePlates();
   }
 
-   late List<String> licensePlates ; // Initial list of license plates
+   late List<String> licensePlates=[] ; 
 
 
   Future<void> fetchLicensePlates() async {
@@ -365,6 +365,14 @@ Future<void> updateUserProfile() async {
             fontWeight: FontWeight.w600,
           ),
         ),
+        actions: [
+            IconButton(
+              icon: Icon(Icons.edit),
+              color: Colors.white,
+              onPressed: () {}
+                
+            ),
+          ],
       ),
       body: isLoading
           ? Center(

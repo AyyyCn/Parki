@@ -56,7 +56,7 @@ class SelfUserInfoSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CustomUser
-        fields = ['last_name', 'first_name', 'email', 'phone_number', 'address', 'city', 'state', 'country']
+        fields = ['last_name', 'first_name', 'email', 'phone_number', 'address', 'city', 'state', 'country','subscription', 'credit']
 
     def update(self, instance, validated_data):
         phone_number_data = validated_data.pop('phone_number', None)

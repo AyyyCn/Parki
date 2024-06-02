@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/screens/credit_screen.dart';
 import 'package:frontend/screens/home_screen.dart';
 import 'package:frontend/screens/park_booking_screen.dart';
 import 'package:frontend/screens/profile_screen.dart';
@@ -27,7 +28,10 @@ class CustomBottomNavigationBar extends StatelessWidget {
             );
             break;
           case 2:
-            // Navigate to Ticket
+          Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => CreditScreen()),
+                      );           
             break;
           case 3:
             // Navigate to Profile

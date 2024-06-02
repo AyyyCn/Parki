@@ -63,40 +63,45 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> fetchCurrentLocation() async {
-    try {
-      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-      if (!serviceEnabled) {
-        throw 'Location services are disabled.';
-      }
+  try {
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      throw 'Location services are disabled.';
+    }
 
-      LocationPermission permission = await Geolocator.checkPermission();
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
-        permission = await Geolocator.requestPermission();
-        if (permission == LocationPermission.denied) {
-          throw 'Location permissions are denied';
-        }
+        throw 'Location permissions are denied';
       }
+    }
 
-      if (permission == LocationPermission.deniedForever) {
-        throw 'Location permissions are permanently denied';
-      }
+    if (permission == LocationPermission.deniedForever) {
+      throw 'Location permissions are permanently denied';
+    }
 
-      Position position = await Geolocator.getCurrentPosition();
+    Position position = await Geolocator.getCurrentPosition();
+    if (mounted) {
       setState(() {
         latitude = position.latitude;
         longitude = position.longitude;
         locationMessage = 'Latitude: $latitude\nLongitude: $longitude';
       });
+    }
 
-      fetchNearbyParkings();
-    } catch (e) {
-      print('Error fetching current location: $e');
+    fetchNearbyParkings();
+  } catch (e) {
+    print('Error fetching current location: $e');
+    if (mounted) {
       setState(() {
         locationMessage = 'Error: $e';
         isLoading = false;
       });
     }
   }
+}
+
 
   Future<void> fetchNearbyParkings() async {
   var dio = Dio();
@@ -165,7 +170,7 @@ Widget build(BuildContext context) {
   return Scaffold(
     appBar: AppBar(
       elevation: 0,
-      backgroundColor: Colors.transparent,
+      backgroundColor: Colors.pink[200],
       foregroundColor: Colors.black,
       title: isLoading
           ? const Text("Hello")
@@ -302,7 +307,7 @@ void _clearSearch() {
 Widget build(BuildContext context) {
   return Scaffold(
     appBar: AppBar(
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.pink[200],
       foregroundColor: Colors.black,
       elevation: 1,
       leading: IconButton(
