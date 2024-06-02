@@ -169,7 +169,7 @@ List<String> cookies = cookieHeader.split(RegExp(r'[;,]'));
   return '';
 }
 
-  @override
+@override
 Widget build(BuildContext context) {
   return Scaffold(
     body: Stack(
@@ -214,7 +214,8 @@ Widget build(BuildContext context) {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Expanded(
+                  SizedBox(
+                    height: 50,
                     child: TextField(
                       /*inputFormatters: [
                         FilteringTextInputFormatter.digitsOnly
@@ -231,7 +232,8 @@ Widget build(BuildContext context) {
                       ),
                     ),
                   ),
-                  Expanded(
+                  SizedBox(
+                    height: 50,
                     child: TextFormField(
                       obscureText: true,
                       controller: passwordController,

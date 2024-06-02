@@ -28,6 +28,8 @@ def pay(user,license_plate,parking_id):
         ).latest('entry_time')
         #caluclate the cost
         if parking_session.parking.price_per_hour == 0:
+            parking_session.paid = True
+            parking_session.save()
             return "Parking is free. Thank you!"
         cost = parking_session.calculate_cost()
         if(user.credit < cost):

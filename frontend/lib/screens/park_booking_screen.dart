@@ -1,6 +1,10 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:frontend/screens/home_screen.dart';
+import 'package:frontend/widgets/confetti_card.dart';
 import 'package:frontend/widgets/custom_bottom_navigation_bar.dart';
+import 'package:frontend/widgets/happy_card.dart';
+import 'package:frontend/widgets/sad_card.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:async';
 
@@ -53,6 +57,34 @@ class _ParkBookingScreenState extends State<ParkBookingScreen> {
       });
     }
   }
+
+ Future<String> pay(int parkingId, String licensePlate) async {
+  String message = "";
+  try {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? sessionId = prefs.getString('sessionId');
+    String? csrfToken = prefs.getString('csrfToken');
+
+    var dio = Dio();
+    dio.options.headers['Cookie'] = 'sessionid=$sessionId; csrftoken=$csrfToken';
+    dio.options.headers['X-CSRFToken'] = csrfToken;
+
+    var url = 'http://10.0.2.2:8000/pay';
+    var response = await dio.post(
+      url,
+      data: {
+        'parking_id': parkingId.toString(),
+        'license_plate': licensePlate,
+      },
+    );
+    message = response.data['message'];
+  } catch (e) {
+    print('Error when paying: $e');
+    throw e; // Rethrow the error to handle it in the caller function
+  }
+  return message;
+}
+
 
   double calculateCurrentPrice(DateTime entryTime, double pricePerHour) {
     Duration duration = DateTime.now().difference(entryTime);
@@ -127,9 +159,124 @@ class _ParkBookingScreenState extends State<ParkBookingScreen> {
                               licensePlate: session['license_plate'] ?? "Unknown",
                               isPaid: session['paid'] ?? false,
                               payTime: session['pay_time'] ?? "Unknown Time",
-                              onPayPressed: () {
-                                // Implement pay functionality
+                              
+                              onPayPressed: () async {
+                                double amount = currentPrice; // Assuming currentPrice holds the amount of money to pay
+
+                                // Show dialog to confirm payment
+                                bool confirmPayment = await showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                        return AlertDialog(
+                                          title: Text(
+                                            'Confirm Payment',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.blue,
+                                              fontSize: 24,
+                                            ),
+                                          ),
+                                          content: Text(
+                                            'Do you want to pay $amount?',
+                                            style: TextStyle(
+                                              fontSize: 18,
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                          actions: <Widget>[
+                                            TextButton(
+                                              onPressed: () {
+                                                Navigator.of(context).pop(false); // Return false if canceled
+                                              },
+                                              child: Text(
+                                                'No',
+                                                style: TextStyle(
+                                                  fontSize: 18,
+                                                  color: Colors.red,
+                                                ),
+                                              ),
+                                            ),
+                                            TextButton(
+                                              onPressed: () {
+                                                Navigator.of(context).pop(true); // Return true if confirmed
+                                              },
+                                              child: Text(
+                                                'Yes',
+                                                style: TextStyle(
+                                                  fontSize: 18,
+                                                  color: Colors.green,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        );
+
+                                  },
+                                );
+
+                                // If payment is confirmed, proceed with payment
+                                if (confirmPayment == true) {
+        
+                                  try {
+                                    print("9bal lpayment");
+                                    print(session["parking"]); print( session["license_plate"]);
+                                    String message = await pay(session["parking"], session["license_plate"]);
+                                    Widget card;
+                                    if (message == "Payment successful. Thank you! Please leave within 15 minutes.") {
+                                      // Happy card
+                                      card = HappyCard();
+                                    } else  {
+                                      // Confetti card
+                                      card = ConfettiCard();
+                                    }
+
+                                    // Show card in a dialog
+                                    showDialog(
+                                      context: context,
+                                      builder: (BuildContext context) {
+                                        return AlertDialog(
+                                          content: card,
+                                          actions: <Widget>[
+                                            TextButton(
+                                                onPressed: () {
+                                                  Navigator.push(context, MaterialPageRoute(builder: (context) => HomePage()));
+                                                },
+                                                child: Text('OK'),
+                                              ),
+
+                                          ],
+                                        );
+                                      },
+                                    );
+                                  } catch (e) {
+                                    // Handle payment error
+                                    print('Error during payment: $e');
+                                    showDialog(
+                                      context: context,
+                                      builder: (BuildContext context) {
+                                        return AlertDialog(
+                                          content: SadCard(),
+                                          actions: <Widget>[
+                                            TextButton(
+                                                onPressed: () {
+                                                  Navigator.push(context, MaterialPageRoute(builder: (context) => HomePage()));
+                                                },
+                                                child: Text('OK'),
+                                              ),
+
+                                          ],
+                                        );
+                                      },
+                                    );
+                                  }
+                                }
                               },
+
+
+
+
+
+
                             )
                           : ReservationCard(
                               parkingName: session['parkingName'] ?? "Unknown Parking",
