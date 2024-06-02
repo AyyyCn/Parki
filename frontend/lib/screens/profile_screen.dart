@@ -43,7 +43,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
       if (response.statusCode == 200) {
         var responseData = response.data;
-        print('Response data: $responseData');
 
         if (responseData is Map && responseData.containsKey('license_plates')) {
           setState(() {
@@ -78,7 +77,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
           MaterialPageRoute(builder: (context) => loginScreen()),
         );
         String cookieHeader = response.headers['set-cookie'].toString();
-        print(cookieHeader);
         // Clear session-related data from SharedPreferences
         SharedPreferences prefs = await SharedPreferences.getInstance();
         await prefs.remove('sessionId');
@@ -144,8 +142,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
       if (response.statusCode == 200) {
         final userData = response.data;
-        print('User Data: $userData'); // Print userData to inspect its structure
-
         setState(() {
           name = userData['first_name'].toString() + " " + userData['last_name'].toString(); // Access 'first_name' with null check
           phone = userData['phone_number']['national_number'].toString(); // Access 'phone_number' with null check

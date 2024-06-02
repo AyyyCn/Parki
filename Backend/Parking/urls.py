@@ -5,8 +5,8 @@ from .import _views as view
 from .views.Userviews import PublicUserInfoViewSet, UpdatePassword, SelfUserInfoViewSet,license_plate,Payment
 from .views import Userviews
 from .modelViews.modelViews import UserCarAPIView,ParkingReservationAPIView,ParkingSessionAPIView
-from .views.parkingViews import RecommendParking, StartSession,EndSession
-
+from .views.parkingViews import RecommendParking
+#from .views.parkingViews import StartSession,EndSession 
 UserRouter= DefaultRouter()
 UserRouter.register('touchInfo', PublicUserInfoViewSet, basename='info')
 
@@ -36,8 +36,8 @@ urlpatterns = [
     path('parkingsession/', ParkingSessionAPIView.as_view(), name='parkingsession_api'),
     path('parkingsession/<int:pk>/', ParkingSessionAPIView.as_view(), name='parkingsession_detail_api'),
     path('closest' , RecommendParking.as_view(), name = 'closest Parking'), 
-    path('StartSession', StartSession.as_view(), name='StartSession'), #this is the endpoint for uploading images from camera to be changed
-    path('EndSession', EndSession.as_view(), name='EndSession'), #this is the endpoint for uploading images from camera to be changed
+    #path('StartSession', StartSession.as_view(), name='StartSession'), #this is the endpoint for uploading images from camera to be changed
+    #path('EndSession', EndSession.as_view(), name='EndSession'), #this is the endpoint for uploading images from camera to be changed
     path ('license_plate', license_plate.as_view(), name='license_plate'),
     path ('pay', Payment.as_view(), name='pay')
 ]
