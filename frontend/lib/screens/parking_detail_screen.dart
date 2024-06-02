@@ -94,23 +94,15 @@ class ParkingDetailsPage extends StatelessWidget {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-            _openGoogleMaps(parking.latitude.toString(), parking.longitude.toString())
-                .catchError((error) => print('Error launching Google Maps: $error'));
-          },
+         onPressed: () {
+            _openMap(parking.latitude.toString(), parking.longitude.toString());
+            },
         child: Icon(Icons.location_on),
       ),
     );
   }
 
-  Future<void> _openGoogleMaps(String lat, String long) async {
-    String googleURL = 'https://www.google.com/maps/search/?api=1&query=$lat,$long';
-    if (await canLaunch(googleURL)) {
-      await launch(googleURL);
-    } else {
-      throw 'Could not launch $googleURL';
-    }
-  }
+
 
   Widget _buildDetailRow(String title, String value) {
     return Row(
@@ -157,3 +149,7 @@ class ParkingDetailsPage extends StatelessWidget {
     );
   }
 }
+Future<void> _openMap(String lat, String long) async {
+    String googleURL = 'https://www.google.com/maps/search/?api=1&query=$lat,$long';
+    await launch(googleURL); 
+  }
