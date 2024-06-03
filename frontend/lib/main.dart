@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/screens/credit_screen.dart';
 import 'package:frontend/screens/login_screen.dart';
+import 'package:frontend/screens/park_booking_screen.dart';
+import 'package:frontend/screens/profile_screen.dart';
 import 'package:frontend/screens/reg_screen.dart';
 import 'package:frontend/screens/welcome_screen.dart';
 import 'package:frontend/screens/home_screen.dart'; // Import your HomeScreen
@@ -37,7 +40,10 @@ class MyApp extends StatelessWidget {
       ),
       routes: {
         'RegScreen': (context) => RegScreen(),
-        // Other routes if any
+        '/homepage': (context) => HomePage(),
+        '/bookings': (context) => ParkBookingScreen(),
+        '/credits': (context) => CreditScreen(),
+        '/profile': (context) => ProfileScreen(),
       },
       onGenerateRoute: (settings) {
         // Handle unknown routes here

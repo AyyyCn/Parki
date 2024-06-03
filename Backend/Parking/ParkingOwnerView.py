@@ -2,6 +2,7 @@
 from django.shortcuts import render
 from django.shortcuts import render, get_object_or_404
 from .models import Parking, ParkingSessionArchive
+from django.contrib.auth import logout
 
 from .views.Userviews import logout_view
 from .forms import ParkingOwnerRegisterForm
@@ -16,3 +17,10 @@ def parking_archive_sessions(request, pk):
     parking_archive_sessions = ParkingSessionArchive.objects.filter(parking=parking)
     total_cost = sum(session.cost for session in parking_archive_sessions)
     return render(request, 'parking_archive_sessions.html', {'parking': parking, 'sessions': parking_archive_sessions, 'total_cost': total_cost})
+
+def Log_out(request):
+    logout(request)
+    return render(request, "base.html")
+
+
+

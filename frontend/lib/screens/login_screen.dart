@@ -82,12 +82,9 @@ class _LoginScreenState extends State<loginScreen> {
         // Extract Cookie header
     AuthService.login();
     String cookieHeader = response.headers['set-cookie'].toString();
-    print(cookieHeader);
     // Extract session ID and CSRF token
     String sessionId = _extractSessionId(cookieHeader);
     String csrfToken = _extractCsrfToken(cookieHeader);
-  print("sessionid:  "); print(sessionId);
-  print("csrftoken:  "); print(csrfToken);
     // Save session ID and CSRF token to shared preferences
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setString('sessionId', sessionId);
@@ -148,8 +145,6 @@ String _extractSessionId(String cookieHeader) {
 
   for (String cookie in cookies) {
     String trimmedCookie = cookie.trim();
-    print("trimmed cookie part");
-    print (trimmedCookie);
     if (trimmedCookie.startsWith('[sessionid=')) {
       return trimmedCookie.substring('[sessionid='.length);
     }

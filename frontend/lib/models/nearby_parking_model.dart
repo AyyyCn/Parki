@@ -7,6 +7,8 @@ class NearbyParkingModel {
   final double pricePerHour;
   final String image;
   final double distance; 
+  final double latitude; 
+  final double longitude; 
 
   NearbyParkingModel({
     required this.id,
@@ -17,6 +19,8 @@ class NearbyParkingModel {
     required this.pricePerHour,
     required this.image,
     required this.distance,
+    required this.latitude,
+    required this.longitude,
   });
 
   factory NearbyParkingModel.fromJson(Map<String, dynamic> json) {
@@ -27,6 +31,8 @@ class NearbyParkingModel {
       totalSpots: json['totalSpots'],
       availableSpots: json['availableSpots'],
       pricePerHour: json['pricePerHour'],
+      longitude: json['longitude'],
+      latitude: json['latitude'],
       image: json['image'] ?? 'images/parkings/parking1.jpg',
       distance: json['distance'],
     );

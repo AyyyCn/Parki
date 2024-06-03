@@ -32,7 +32,7 @@ def check_in_hour(request, license_plate):
 
 def homepage(request):
     
-    return HttpResponse("this is the homepage ( au    cas où)")
+    return render(request, "base.html")
 
 
 def registerpage(request):

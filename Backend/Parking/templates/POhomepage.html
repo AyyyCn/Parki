@@ -50,12 +50,36 @@
             background-color: #e2e2e2;
             cursor: pointer;
         }
+
+        .logout-btn {
+            display: inline-block;
+            margin: 10px 0;
+            padding: 10px 20px;
+            background-color: #d9534f;
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+            text-align: center;
+        }
+
+        .logout-btn:hover {
+            background-color: #c9302c;
+        }
+
+        .btn-container {
+            text-align: right;
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
     <h1>Parking Spaces</h1>
+    <div class="btn-container">
+        <a href="{% url 'log_out' %}" class="logout-btn">Logout</a>
+    </div>
     <table id="parking-table">
         <thead>
             <tr>

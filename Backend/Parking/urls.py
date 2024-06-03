@@ -4,10 +4,10 @@ from .views.parkingViews import ParkingAPIView
 from .import _views as view
 from .views.Userviews import ParkingOwnerRegisterForm, PublicUserInfoViewSet, UpdatePassword, SelfUserInfoViewSet,license_plate,Payment
 from .views import Userviews
-
+from .ParkingOwnerView import parking_archive_sessions,parking_owner_register, Log_out
 from .modelViews.modelViews import ParkingOwnerAPIView, UserCarAPIView,ParkingReservationAPIView,ParkingSessionAPIView
-from .views.parkingViews import RecommendParking, ImageUploadView
-from .ParkingOwnerView import parking_owner_register, parking_archive_sessions
+from .views.parkingViews import RecommendParking
+#from .views.parkingViews import StartSession,EndSession from .ParkingOwnerView import parking_owner_register, parking_archive_sessions
 UserRouter= DefaultRouter()
 UserRouter.register('touchInfo', PublicUserInfoViewSet, basename='info')
 
@@ -20,7 +20,7 @@ urlpatterns = [
     path('POlogin', Userviews.POlogin, name = "POlogin"),
     path('registerAPI', Userviews.register_viewJSON, name= 'signupAPI'),
     path('POregister', Userviews.POregister_viewJSON, name= 'PO register'),
-
+    path('logout', Log_out, name='log_out'),
     path('logoutAPI', Userviews.logout_view, name='f'),
 
     # URL pattern for retrieving/updating a specific user by primary key
@@ -44,7 +44,8 @@ urlpatterns = [
 
     path('registerpage', parking_owner_register, name= "parking_owner_register"),
     path('closest' , RecommendParking.as_view(), name = 'closest Parking'), 
-    path('image/upload/', ImageUploadView.as_view(), name='image-upload'), #this is the endpoint for uploading images from camera
+    #path('StartSession', StartSession.as_view(), name='StartSession'), #this is the endpoint for uploading images from camera to be changed
+    #path('EndSession', EndSession.as_view(), name='EndSession'), #this is the endpoint for uploading images from camera to be changed
     path ('license_plate', license_plate.as_view(), name='license_plate'),
     path ('pay', Payment.as_view(), name='pay'),
     path('homepage/<int:instance_id>/', Userviews.homepage_view, name='homepage'),
