@@ -3,7 +3,9 @@
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from ..models import UserCar, ParkingSession, ParkingReservation
+
+from ..Serializers.ParkingOwnerSerializer import ParkingOwnerSerializer
+from ..models import ParkingOwner, UserCar, ParkingSession, ParkingReservation
 from ..Serializers.parkingSerializers import ParkingSessionSerializer, ParkingReservationSerializer, UserCarSerializer
 from rest_framework.permissions import IsAuthenticated
 
@@ -11,7 +13,14 @@ class BaseAPIView(APIView):
     model = None
     serializer_class = None
 
-    def get(self, request):
+    def get(self, request, pk=None):
+        if (pk):
+            try:
+                instance = self.model.objects.get(id=pk)
+            except self.model.DoesNotExist:
+                return Response(status=status.HTTP_404_NOT_FOUND)
+            serializer = self.serializer_class(instance)
+            return Response(serializer.data)
         instances = self.model.objects.all()
         serializer = self.serializer_class(instances, many=True)
         return Response(serializer.data)
@@ -82,3 +91,7 @@ class ParkingSessionAPIView(APIView):
 class ParkingReservationAPIView(BaseAPIView):
     model = ParkingReservation
     serializer_class = ParkingReservationSerializer
+
+class ParkingOwnerAPIView(BaseAPIView):
+    model = ParkingOwner
+    serializer_class= ParkingOwnerSerializer

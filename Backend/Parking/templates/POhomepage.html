@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parking Spaces</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        tr:hover {
+            background-color: #e2e2e2;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Parking Spaces</h1>
+    <table id="parking-table">
+        <thead>
+            <tr>
+                <th>Parking ID</th>
+                <th>Name</th>
+                <th>Available Spots</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for parking in parkings %}
+            <tr class="parking-row" data-parking-id="{{ parking.id }}">
+                <td>{{ parking.id }}</td>
+                <td>{{ parking.name }}</td>
+                <td>{{ parking.available_spots }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const parkingRows = document.querySelectorAll(".parking-row");
+        parkingRows.forEach(row => {
+            row.addEventListener("click", function() {
+                const parkingId = row.getAttribute("data-parking-id");
+                window.location.href = `/parking/${parkingId}/archives`;
+            });
+        });
+    });
+</script>
+
+</body>
+</html>

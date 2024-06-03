@@ -2,11 +2,12 @@ from django.urls import path
 from rest_framework.routers import DefaultRouter
 from .views.parkingViews import ParkingAPIView
 from .import _views as view
-from .views.Userviews import PublicUserInfoViewSet, UpdatePassword, SelfUserInfoViewSet,license_plate,Payment
+from .views.Userviews import ParkingOwnerRegisterForm, PublicUserInfoViewSet, UpdatePassword, SelfUserInfoViewSet,license_plate,Payment
 from .views import Userviews
-from .modelViews.modelViews import UserCarAPIView,ParkingReservationAPIView,ParkingSessionAPIView
-from .views.parkingViews import RecommendParking, ImageUploadView
 
+from .modelViews.modelViews import ParkingOwnerAPIView, UserCarAPIView,ParkingReservationAPIView,ParkingSessionAPIView
+from .views.parkingViews import RecommendParking, ImageUploadView
+from .ParkingOwnerView import parking_owner_register, parking_archive_sessions
 UserRouter= DefaultRouter()
 UserRouter.register('touchInfo', PublicUserInfoViewSet, basename='info')
 
@@ -16,7 +17,9 @@ urlpatterns = [
     path('register', view.register_view, name= 'signup'),
     path('login', view.login_view, name= 'loginpage'),
     path('loginAPI', Userviews.login_viewJSON, name= 'loginpageAPI'),
+    path('POlogin', Userviews.POlogin, name = "POlogin"),
     path('registerAPI', Userviews.register_viewJSON, name= 'signupAPI'),
+    path('POregister', Userviews.POregister_viewJSON, name= 'PO register'),
 
     path('logoutAPI', Userviews.logout_view, name='f'),
 
@@ -35,8 +38,15 @@ urlpatterns = [
     path('parkingreservation/<int:pk>/', ParkingReservationAPIView.as_view(), name='parkingreservation_detail_api'),
     path('parkingsession/', ParkingSessionAPIView.as_view(), name='parkingsession_api'),
     path('parkingsession/<int:pk>/', ParkingSessionAPIView.as_view(), name='parkingsession_detail_api'),
+    path('parkingowners/', ParkingOwnerAPIView.as_view()),
+    path('parkingowners/<int:pk>/', ParkingOwnerAPIView.as_view()),
+    path('parking/<int:pk>/archives/', parking_archive_sessions, name='parking_archive_sessions'),
+
+    path('registerpage', parking_owner_register, name= "parking_owner_register"),
     path('closest' , RecommendParking.as_view(), name = 'closest Parking'), 
     path('image/upload/', ImageUploadView.as_view(), name='image-upload'), #this is the endpoint for uploading images from camera
     path ('license_plate', license_plate.as_view(), name='license_plate'),
-    path ('pay', Payment.as_view(), name='pay')
+    path ('pay', Payment.as_view(), name='pay'),
+    path('homepage/<int:instance_id>/', Userviews.homepage_view, name='homepage'),
+
 ]

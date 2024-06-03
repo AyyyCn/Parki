@@ -1,6 +1,8 @@
 from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm
 from django.contrib.sessions.models import Session
+
 from django.http import JsonResponse, HttpResponse
+from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from rest_framework import authentication, exceptions, status
 from rest_framework.generics import UpdateAPIView
@@ -8,14 +10,14 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.views import APIView
-from ..forms import RegisterForm, LoginForm
+from ..forms import RegisterForm, LoginForm, ParkingOwnerRegisterForm
 from django.contrib.auth import login, authenticate, logout
 from django import forms
 import logging
 from rest_framework import viewsets
 from ..Serializers.UserSerializers import PublicUserInfoSerializer, ChangePasswordSerializer, SelfUserInfoSerializer, PhoneNumberSerializer
 from ..Serializers.LicencePlateSerializer import LicensePlateSerializer
-from ..models import CustomUser
+from ..models import CustomUser, ParkingOwner
 from rest_framework.decorators import api_view, permission_classes
 from django.middleware.csrf import get_token
 from django.http import JsonResponse
@@ -32,6 +34,22 @@ def register_viewJSON(request):
             user = form.save(commit=False)
             user.save()
             return JsonResponse({'message': 'User created successfully'}, status=201)
+        else:
+            print(form.errors)
+            return JsonResponse({'error': form.errors}, status=500)
+        
+@csrf_exempt
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def POregister_viewJSON(request):
+    Session.objects.all().delete()
+    if request.method == 'POST':
+        form = ParkingOwnerRegisterForm(data=request.data)
+        if form.is_valid():
+            user = form.save(commit=False)
+            user.save()
+            print( {'message': 'PO created successfully'})
+            return render(request , 'parking_owner_register.html', {'message': 'PO created successfully'})
         else:
             print(form.errors)
             return JsonResponse({'error': form.errors}, status=500)
@@ -254,3 +272,41 @@ class Payment(APIView):
                 return Response({'error': payment_result}, status=status.HTTP_402_PAYMENT_REQUIRED)
             else:
                 return Response({'error': payment_result}, status=status.HTTP_404_NOT_FOUND)
+            
+@csrf_exempt
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def POlogin(request):
+    if request.user.is_authenticated:
+        return JsonResponse({'message': 'User is already authenticated'}, status=400)
+
+    if request.method == 'POST':
+        form = LoginForm(data=request.data)
+        print(form.is_valid())
+        if form.is_valid():
+            phone_number = form.cleaned_data.get('phone_number')
+            password = form.cleaned_data.get('password')
+            user = authenticate(request, phone_number=phone_number, password=password)
+            if user is not None:
+                login(request, user)
+                # Retrieve CSRF token
+                csrf_token = get_token(request)
+                # Include CSRF token in response headers
+                response = JsonResponse({'message': 'Login successful'}, status=200)
+                response["X-CSRFToken"] = csrf_token
+                print(response)
+                instance = get_object_or_404(ParkingOwner, phone_number=phone_number)
+                return redirect('homepage', instance_id=instance.id)
+
+                
+            else:
+                return JsonResponse({'error': 'Invalid phone number or password'}, status=400)
+        else:
+            print(form.errors)
+            return JsonResponse(form.errors, status=400)
+
+def homepage_view(request, instance_id):
+    instance = get_object_or_404(ParkingOwner, id=instance_id)
+    parkings=instance.parkings.all()
+
+    return render(request, 'POhomepage.html', {"parkings": parkings})

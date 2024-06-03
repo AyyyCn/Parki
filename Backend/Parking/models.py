@@ -52,15 +52,20 @@ class CustomUser(AbstractUser):
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
 
+class ParkingOwner(CustomUser):
+    
+    def __str__(self) -> str:
+        return super().__str__()
 
 class Parking(models.Model):
+    owner= models.ForeignKey(ParkingOwner, on_delete=models.CASCADE, related_name='parkings', null= True)
     name = models.CharField(max_length=255)
     address = models.CharField(max_length=255)
-    latitude = models.FloatField()
-    longitude = models.FloatField()
-    total_spots = models.IntegerField()
-    available_spots = models.IntegerField()
-    price_per_hour = models.DecimalField(max_digits=6, decimal_places=2)
+    latitude = models.FloatField(null=True)
+    longitude = models.FloatField(null= True)
+    total_spots = models.IntegerField(null = True)
+    available_spots = models.IntegerField(null = True)
+    price_per_hour = models.DecimalField(max_digits=6, decimal_places=2, null = True)
 
     def __str__(self):
         return self.name
@@ -120,9 +125,11 @@ class ParkingReservation(models.Model):
 
 class ParkingSessionArchive(models.Model):
     # Assuming these fields mirror those in ParkingSession
+    parking= models.ForeignKey(Parking, on_delete=models.CASCADE, related_name='archives', null= True)
     license_plate = models.CharField(max_length=20)
     entry_time = models.DateTimeField()
     exit_time = models.DateTimeField()
+    cost= models.FloatField(null= True)
 
     pay_time = models.DateTimeField(null=True, blank=True)
     # Additional fields for archiving
