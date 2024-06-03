@@ -148,3 +148,38 @@ class ImageUploadView(APIView):
         # For demonstration, we will just return a success message.
         msg = start_parking_session("12ABC", parking_id)
         return Response({'message': 'Image received successfully!', 'parking_id': parking_id,'result': msg}, status=status.HTTP_200_OK)
+
+class EndSession(APIView):
+    def post(self, request, *args, **kwargs):
+        if 'parking_id' not in request.data or 'license_plate' not in request.data:
+            return Response({'error': 'Required data not provided'}, status=status.HTTP_400_BAD_REQUEST)
+
+        parking_id = request.data.get('parking_id')
+        license_plate = request.data.get('license_plate')
+
+        result = exit_parking_session(license_plate, parking_id)
+
+        # Map the status to HTTP status codes
+        status_map = {
+            "exited_successfully": status.HTTP_200_OK,
+            "payment_required": status.HTTP_402_PAYMENT_REQUIRED,
+            "extra_payment_required": status.HTTP_402_PAYMENT_REQUIRED,
+            "no_session_found": status.HTTP_404_NOT_FOUND
+        }
+
+        # Get the HTTP status from the map, default to 400 if not found
+        http_status = status_map.get(result['status'], status.HTTP_400_BAD_REQUEST)
+
+        return Response({'message': result['message'], 'parking_id': parking_id, 'status': result['status']}, status=http_status)
+
+class StartSession(APIView):
+    def post(self, request, *args, **kwargs):
+        if 'parking_id' not in request.data or 'license_plate' not in request.data:
+            return Response({'error': 'Required data not provided'}, status=status.HTTP_400_BAD_REQUEST)
+
+        parking_id = request.data.get('parking_id')
+        license_plate = request.data.get('license_plate')
+
+        result = start_parking_session(license_plate, parking_id)
+
+        return Response({'message': result, 'parking_id': parking_id}, status=status.HTTP_200_OK)
