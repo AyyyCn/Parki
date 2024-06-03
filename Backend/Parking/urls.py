@@ -7,6 +7,7 @@ from .views import Userviews
 from .ParkingOwnerView import parking_archive_sessions,parking_owner_register, Log_out
 from .modelViews.modelViews import ParkingOwnerAPIView, UserCarAPIView,ParkingReservationAPIView,ParkingSessionAPIView
 from .views.parkingViews import RecommendParking
+from .chart import your_view
 #from .views.parkingViews import StartSession,EndSession from .ParkingOwnerView import parking_owner_register, parking_archive_sessions
 UserRouter= DefaultRouter()
 UserRouter.register('touchInfo', PublicUserInfoViewSet, basename='info')
@@ -14,7 +15,7 @@ UserRouter.register('touchInfo', PublicUserInfoViewSet, basename='info')
 urlpatterns = [
     path('', view.homepage, name = 'homepage'),
     path('check_in_hour/<str:license_plate>/', view.check_in_hour, name='check_in_hour'),
-    path('register', view.register_view, name= 'signup'),
+    path('register', view.register_view, name='signup'),
     path('login', view.login_view, name= 'loginpage'),
     path('loginAPI', Userviews.login_viewJSON, name= 'loginpageAPI'),
     path('POlogin', Userviews.POlogin, name = "POlogin"),
@@ -22,6 +23,8 @@ urlpatterns = [
     path('POregister', Userviews.POregister_viewJSON, name= 'PO register'),
     path('logout', Log_out, name='log_out'),
     path('logoutAPI', Userviews.logout_view, name='f'),
+
+    path('chart', your_view, name= "chart"),
 
     # URL pattern for retrieving/updating a specific user by primary key
     path('user/<int:pk>/', PublicUserInfoViewSet.as_view({'get': 'retrieve', 'put': 'update'}), name='user-detail'),

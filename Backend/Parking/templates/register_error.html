@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration Errors</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            max-width: 600px;
+            width: 100%;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        .error-message {
+            color: #D8000C;
+            background-color: #FFBABA;
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 4px;
+        }
+
+        .error-message p {
+            margin: 0;
+        }
+
+        .error-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .error-details {
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Registration Errors</h1>
+    {% for field, messages in errors.items %}
+        {% for message in messages %}
+            <div class="error-message">
+                <div class="error-title">{{ field }}:</div>
+                <div class="error-details">{{ message }}</div>
+            </div>
+        {% endfor %}
+    {% endfor %}
+</div>
+
+</body>
+</html>

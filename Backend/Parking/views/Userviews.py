@@ -52,7 +52,7 @@ def POregister_viewJSON(request):
             return render(request , 'parking_owner_register.html', {'message': 'PO created successfully'})
         else:
             print(form.errors)
-            return JsonResponse({'error': form.errors}, status=500)
+            return render(request, 'register_error.html', {'error': form.errors})
 
 
 
