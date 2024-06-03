@@ -178,13 +178,13 @@ class _HomePageState extends State<HomePage> {
   }
 
 
-  @override
+@override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: Colors.pink[200],
-        foregroundColor: Colors.black,
+        backgroundColor: Colors.teal,
+        foregroundColor: Colors.white,
         title: isLoading
             ? const Text("Hello")
             : Column(
@@ -192,9 +192,12 @@ class _HomePageState extends State<HomePage> {
                 children: [
                   const Text("Hello"),
                   Text(
-                    name,
-                    style: Theme.of(context).textTheme.subtitle1,
-                  ),
+                        name,
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          color: Colors.white,
+                        ),
+                      ),
+
                 ],
               ),
         actions: [
@@ -220,59 +223,68 @@ class _HomePageState extends State<HomePage> {
         padding: const EdgeInsets.all(14),
         children: [
           Card(
-            elevation: 0.4,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            child: Padding(
-              padding: const EdgeInsets.all(10),
-              child: Row(
-                children: [
-                  GestureDetector(
-                    onTap: () {
-                      _openMap(latitude.toString(), longitude.toString());
-                    },
-                    child: Image.asset(
-                      'images/map.jpg',
-                      width: 80,
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      GestureDetector(
-                        onTap: () {
-                          fetchCurrentLocation().catchError((error) {
-                            setState(() {
-                              locationMessage = error.toString();
-                            });
-                                                      });
-                        },
-                        child: Text(
-                          "Your Location",
-                          style: Theme.of(context).textTheme.subtitle1,
-                        ),
-                      ),
-                      const SizedBox(height: 5),
-                    ],
-                  ),
-                ],
-              ),
+  elevation: 0.4,
+  shape: RoundedRectangleBorder(
+    borderRadius: BorderRadius.circular(12),
+  ),
+  child: Padding(
+    padding: const EdgeInsets.all(10),
+    child: Row(
+      children: [
+        GestureDetector(
+          onTap: () {
+            _openMap(latitude.toString(), longitude.toString());
+          },
+          child: ClipOval(
+            child: Image.asset(
+              'images/map.jpg',
+              width: 50,
+              height: 50,
+              fit: BoxFit.cover,
             ),
           ),
-          const SizedBox(height: 15),
-          const SizedBox(height: 10),
+        ),
+        const SizedBox(width: 10),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            GestureDetector(
+              onTap: () {
+                fetchCurrentLocation().catchError((error) {
+                  setState(() {
+                    locationMessage = error.toString();
+                  });
+                });
+              },
+              child: Text(
+                "Your Location",
+                style: Theme.of(context).textTheme.subtitle1,
+              ),
+            ),
+            const SizedBox(height: 5),
+          ],
+        ),
+      ],
+    ),
+  ),
+),
+
+          const SizedBox(height: 5),
+          
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                "Nearby From You",
-                style: Theme.of(context).textTheme.headline6,
+                "🌟Nearby From You🌟",
+                style: Theme.of(context).textTheme.titleLarge,
               ),
               if (!isLocationFetched || !isNearbyParkingsFetched) // Show loading indicator only when fetching nearby parkings
                 SizedBox(
                   width: 20,
                   height: 20,
-                  child: CircularProgressIndicator(),
+                  child: CircularProgressIndicator(
+                    color: const Color(0xFFC8A669), // Updated color
+                  ),
                 ),
             ],
           ),
@@ -290,4 +302,3 @@ class _HomePageState extends State<HomePage> {
     );
   }
 }
-

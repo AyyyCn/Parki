@@ -24,17 +24,17 @@ class NearbyParkingModel {
   });
 
   factory NearbyParkingModel.fromJson(Map<String, dynamic> json) {
-    return NearbyParkingModel(
-      id: json['id'],
-      name: json['name'],
-      address: json['address'],
-      totalSpots: json['totalSpots'],
-      availableSpots: json['availableSpots'],
-      pricePerHour: json['pricePerHour'],
-      longitude: json['longitude'],
-      latitude: json['latitude'],
-      image: json['image'] ?? 'images/parkings/parking1.jpg',
-      distance: json['distance'],
-    );
-  }
+  return NearbyParkingModel(
+    id: json['id'],
+    name: json['name'],
+    address: json['address'],
+    totalSpots: json['total_spots'] ?? 0, // Provide a default value if null
+    availableSpots: json['available_spots'] ?? 0, // Provide a default value if null
+    pricePerHour: json['price_per_hour'] != null ? json['price_per_hour'].toDouble() : 0.0, // Convert to double, provide default value if null
+    longitude: json['longitude'] != null ? json['longitude'].toDouble() : 0.0, // Convert to double, provide default value if null
+    latitude: json['latitude'] != null ? json['latitude'].toDouble() : 0.0, // Convert to double, provide default value if null
+    image: json['image'] ?? 'images/parkings/parking1.jpg',
+    distance: json['distance'] != null ? json['distance'].toDouble() : 0.0, // Convert to double, provide default value if null
+  );
+}
 }

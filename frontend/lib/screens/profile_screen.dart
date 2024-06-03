@@ -168,7 +168,7 @@ Widget build(BuildContext context) {
     body: CustomScrollView(
       slivers: [
         SliverAppBar(
-          backgroundColor: Colors.purple, // Set app bar color to purple
+           backgroundColor: Colors.teal,
           title: Text(
             'Your Profile',
             style: TextStyle(color: Colors.white), // Set text color to white

@@ -11,7 +11,7 @@ class ParkingDetailsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.yellow[700],
+        backgroundColor: Colors.teal, 
         title: Text('Parking Details'),
       ),
       body: SingleChildScrollView(
@@ -71,7 +71,7 @@ class ParkingDetailsPage extends StatelessWidget {
                   SizedBox(height: 10),
                   _buildAvailableSpotsRow(parking.availableSpots),
                   SizedBox(height: 10),
-                  _buildDetailRow('Price per Hour', '\$${parking.pricePerHour.toStringAsFixed(2)}'),
+                  _buildDetailRow('Price per Hour (TND)', '${parking.pricePerHour.toStringAsFixed(2)} '),
                 ],
               ),
             ),
@@ -84,10 +84,19 @@ class ParkingDetailsPage extends StatelessWidget {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.lock, color: parking.availableSpots > 0 ? Color.fromARGB(0, 43, 197, 43) : Colors.grey),
+                  Icon(Icons.lock, color: parking.availableSpots > 0 ? Colors.transparent : Colors.grey),
                   SizedBox(width: 5),
-                  Text('Reserve Parking'),
+                  Text(
+                        'Reserve Parking',
+                        style: TextStyle(
+                          color: parking.availableSpots > 0 ? Color.fromARGB(255, 4, 111, 7) : Colors.grey, 
+                          fontWeight: FontWeight.bold, 
+                        ),
+                      )
+                      ,
+                  
                 ],
+
               ),
             ),
           ],
@@ -126,7 +135,7 @@ class ParkingDetailsPage extends StatelessWidget {
   }
 
   Widget _buildAvailableSpotsRow(int availableSpots) {
-    Color? textColor = availableSpots > 0 ? Colors.green[600] : Colors.red[600];
+    Color? textColor = availableSpots > 0 ? Color.fromARGB(255, 4, 111, 7) : Colors.red[600];
     String text ='$availableSpots' ;
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
