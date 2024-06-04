@@ -52,7 +52,7 @@ def POregister_viewJSON(request):
             return render(request , 'parking_owner_register.html', {'message': 'PO created successfully'})
         else:
             print(form.errors)
-            return render(request, 'register_error.html', {'error': form.errors})
+            return render(request, 'register_error.html', {'form': form})
 
 
 
@@ -300,13 +300,12 @@ def POlogin(request):
 
                 
             else:
-                return JsonResponse({'error': 'Invalid phone number or password'}, status=400)
-        else:
+                return render(request, 'login_error2.html', {'error': 'Invalid phone number or password'})
             print(form.errors)
-            return JsonResponse(form.errors, status=400)
+            return render(request, 'login_error.html', {"form" : form})
 
 def homepage_view(request, instance_id):
     instance = get_object_or_404(ParkingOwner, id=instance_id)
     parkings=instance.parkings.all()
 
-    return render(request, 'POhomepage.html', {"parkings": parkings})
+    return render(request, 'POhomepage.html', {"parkings": parkings, "instance_id": instance_id})

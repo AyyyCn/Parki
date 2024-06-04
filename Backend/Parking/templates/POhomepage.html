@@ -71,6 +71,33 @@
         .btn-container {
             text-align: right;
         }
+
+        .show-numbers-btn {
+            display: inline-block;
+            margin: 10px 0;
+            padding: 10px 20px;
+            background-color: #5bc0de;
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+            text-align: center;
+        }
+
+        .show-numbers-btn:hover {
+            background-color: #31b0d5;
+        }
+
+        #chart-container {
+            display: none;
+            margin-top: 20px;
+        }
+
+        #chart {
+            width: 100%;
+            height: auto;
+        }
     </style>
 </head>
 <body>
@@ -98,6 +125,12 @@
             {% endfor %}
         </tbody>
     </table>
+    <div class="btn-container">
+        <button class="show-numbers-btn" id="show-numbers-btn">Show Numbers</button>
+    </div>
+    <div id="chart-container">
+        <img id="chart" src="" alt="Revenue Chart">
+    </div>
 </div>
 
 <script>
@@ -109,8 +142,29 @@
                 window.location.href = `/parking/${parkingId}/archives`;
             });
         });
+
+        document.getElementById("show-numbers-btn").addEventListener("click", function() {
+            const ownerId = "{{ instance_id }}"; // Make sure to remove the extra space
+            console.log(ownerId);
+            const chartContainer = document.getElementById("chart-container");
+            if (chartContainer.style.display === "block") {
+                chartContainer.style.display = "none"; // Hide the chart container
+            } else {
+                fetch(`/chart/${ownerId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.graph) {
+                        document.getElementById("chart").setAttribute("src", "data:image/svg+xml;base64," + btoa(data.graph));
+                        chartContainer.style.display = "block"; // Show the chart container
+                    } else {
+                        alert('Failed to load the graph.');
+                    }
+                });
+            }
+        });
     });
 </script>
+
 
 </body>
 </html>

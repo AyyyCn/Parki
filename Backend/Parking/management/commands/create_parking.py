@@ -2,6 +2,7 @@ from django.core.management.base import BaseCommand
 from django.utils import timezone
 from datetime import timedelta
 from ...models import ParkingOwner, Parking, ParkingSessionArchive
+import random
 
 class Command(BaseCommand):
     help = 'Create parkings for a given phone number'
@@ -53,7 +54,7 @@ class Command(BaseCommand):
                     license_plate=f'ABC123',  # Set license plate to appropriate value
                     entry_time=timezone.now(),  # Set entry time to appropriate value
                     exit_time=timezone.now() + timedelta(hours=1),  # Set exit time to appropriate value
-                    cost=20.0,  # Set cost to appropriate value
+                    cost=random.randint(50, 200),  # Set cost to appropriate value
                     pay_time=timezone.now() + timedelta(hours=1),  # Set pay time to appropriate value
                 )
                 parking_archives.append(parking_archive)
