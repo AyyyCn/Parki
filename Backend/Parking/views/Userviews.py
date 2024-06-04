@@ -49,7 +49,7 @@ def POregister_viewJSON(request):
             user = form.save(commit=False)
             user.save()
             print( {'message': 'PO created successfully'})
-            return render(request , 'parking_owner_register.html', {'message': 'PO created successfully'})
+            return render(request , 'parking_owner_register.html', {'message': 'your parking Owner account has been created successfully'})
         else:
             print(form.errors)
             return render(request, 'register_error.html', {'form': form})

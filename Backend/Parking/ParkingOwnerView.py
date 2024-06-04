@@ -1,10 +1,10 @@
 
 from django.shortcuts import render
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, redirect, get_object_or_404
 from .models import Parking, ParkingSessionArchive
 from django.contrib.auth import logout
 
-from .views.Userviews import logout_view
+from .views.Userviews import logout_view, homepage_view
 from .forms import ParkingOwnerRegisterForm
 
 import matplotlib
@@ -74,3 +74,18 @@ def Log_out(request):
 
 
 
+def add_parking_PO(request, id):
+    if request.method == 'POST':
+        form_data = request.POST
+        parking = Parking(
+                    name=form_data['name'],
+                    owner=get_object_or_404(ParkingOwner, pk =id),
+                    address=form_data['address'],
+                    total_spots=form_data['total_spots'],
+                    available_spots=form_data['total_spots'],
+                    price_per_hour=form_data['price_per_hour'],
+                )
+        parking.save()
+        return redirect (homepage_view,instance_id=id)
+
+    

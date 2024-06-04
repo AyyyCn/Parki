@@ -98,6 +98,9 @@
             width: 100%;
             height: auto;
         }
+        #parking-form {
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -125,6 +128,29 @@
             {% endfor %}
         </tbody>
     </table>
+
+<button id="show-parking-form">Want to add a parking?</button>    
+<form id ="parking-form" method="post" action="/add_parking/{{ instance_id }}">
+    {% csrf_token %}
+    <div class="form-group">
+        <label for="name">Parking Name:</label>
+        <input type="text" id="name" name="name" required>
+    </div>
+    <div class="form-group">
+        <label for="address">Address:</label>
+        <input type="text" id="address" name="address" required>
+    </div>
+    <div class="form-group">
+        <label for="total_spots">Total Spots:</label>
+        <input type="number" id="total_spots" name="total_spots" required>
+    </div>
+    <div class="form-group">
+        <label for="price_per_place">Price per Place:</label>
+        <input type="number" id="price_per_hour" name="price_per_hour" required>
+    </div>
+    <button type="submit">Add Parking</button>
+</form>
+
     <div class="btn-container">
         <button class="show-numbers-btn" id="show-numbers-btn">Show Numbers</button>
     </div>
@@ -163,6 +189,12 @@
             }
         });
     });
+    const showFormButton = document.getElementById('show-parking-form');
+        const parkingForm = document.getElementById('parking-form');
+
+        showFormButton.addEventListener('click', () => {
+            parkingForm.style.display = 'block'; // Show the form
+        });
 </script>
 
 
