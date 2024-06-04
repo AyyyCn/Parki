@@ -2,19 +2,11 @@ from django.urls import path
 from rest_framework.routers import DefaultRouter
 from .views.parkingViews import ParkingAPIView
 from .import _views as view
-from .views.Userviews import PublicUserInfoViewSet, UpdatePassword, SelfUserInfoViewSet,license_plate,Payment
+from .views.Userviews import ParkingOwnerRegisterForm, PublicUserInfoViewSet, UpdatePassword, SelfUserInfoViewSet,license_plate,Payment
 from .views import Userviews
-<<<<<<< HEAD
 from .ParkingOwnerView import parking_archive_sessions,parking_owner_register, Log_out
 from .modelViews.modelViews import ParkingOwnerAPIView, UserCarAPIView,ParkingSessionAPIView
 from .views.parkingViews import StartSession,EndSession ,RecommendParking,ReserveSpot
-=======
-from .ParkingOwnerView import parking_archive_sessions,parking_owner_register, Log_out 
-from .chart import your_view
-from .modelViews.modelViews import ParkingOwnerAPIView, UserCarAPIView,ParkingReservationAPIView,ParkingSessionAPIView
-from .views.parkingViews import RecommendParking
-from .views.parkingViews import StartSession,EndSession 
->>>>>>> 2a22890404c31797de160ab947b2f3ac2754ebdf
 from .ParkingOwnerView import parking_owner_register, parking_archive_sessions
 UserRouter= DefaultRouter()
 UserRouter.register('touchInfo', PublicUserInfoViewSet, basename='info')
@@ -22,7 +14,7 @@ UserRouter.register('touchInfo', PublicUserInfoViewSet, basename='info')
 urlpatterns = [
     path('', view.homepage, name = 'homepage'),
     path('check_in_hour/<str:license_plate>/', view.check_in_hour, name='check_in_hour'),
-    path('register', view.register_view, name='signup'),
+    path('register', view.register_view, name= 'signup'),
     path('login', view.login_view, name= 'loginpage'),
     path('loginAPI', Userviews.login_viewJSON, name= 'loginpageAPI'),
     path('POlogin', Userviews.POlogin, name = "POlogin"),
@@ -30,8 +22,6 @@ urlpatterns = [
     path('POregister', Userviews.POregister_viewJSON, name= 'PO register'),
     path('logout', Log_out, name='log_out'),
     path('logoutAPI', Userviews.logout_view, name='f'),
-
-    path('chart/<int:id>', your_view, name= "chart"),
 
     # URL pattern for retrieving/updating a specific user by primary key
     path('user/<int:pk>/', PublicUserInfoViewSet.as_view({'get': 'retrieve', 'put': 'update'}), name='user-detail'),

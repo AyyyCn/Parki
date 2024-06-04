@@ -16,7 +16,10 @@ def start_parking_session(license_plate, parking_id):
         # An active session already exists; handle as needed
         return {"message": "Your Spot is waiting for you", "status": "session_already_active"}
 
-
+    #check if there is a spot
+    parking=get_object_or_404(Parking, id=parking_id)
+    if parking.available_spots == 0:
+        return {"message": "No available spots at the moment. Please try again later.", "status": "no_spots_available"}
     # No active session found, start a new one
     new_session = ParkingSession.objects.create(
         license_plate=license_plate,
@@ -27,7 +30,7 @@ def start_parking_session(license_plate, parking_id):
     #send to front signal session started
     parking=get_object_or_404(Parking, id=parking_id)
     parking.update_availability(increment=False)
-    return "Welcome! Your parking session has started. Please pay before exiting."
+    return {"message": "Welcome!", "status": "session_started"}
 def exit_parking_session(license_plate, parking_id):
     try:
         parking_session = ParkingSession.objects.filter(

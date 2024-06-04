@@ -183,8 +183,13 @@ class StartSession(APIView):
         print("Recieved plate image")
         print("extracted license plate: ", license_plate)
         result = start_parking_session(license_plate, parking_id)
-
-        return Response({'message': result, 'parking_id': parking_id}, status=status.HTTP_200_OK)
+        status_map = {
+            "session_already_active": status.HTTP_200_OK,
+            "session_started": status.HTTP_200_OK,
+            "no_spots_available": status.HTTP_403_FORBIDDEN,
+        }
+        http_status = status_map.get(result['status'], status.HTTP_400_BAD_REQUEST)
+        return Response({'message': result, 'parking_id': parking_id}, status=http_status )
     
 
 class ReserveSpot(APIView):
@@ -205,4 +210,4 @@ class ReserveSpot(APIView):
         # Get the HTTP status from the map, default to 400 if not found
         http_status = status_map.get(result['status'], status.HTTP_400_BAD_REQUEST)
 
-        return Response({'message': result['message'], 'parking_id': parking_id, 'status': result['status']}, status=200)
+        return Response({'message': result['message'], 'parking_id': parking_id, 'status': result['status']}, status=http_status )
