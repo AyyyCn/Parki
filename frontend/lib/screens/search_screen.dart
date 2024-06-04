@@ -66,7 +66,7 @@ class _SearchPageState extends State<SearchPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.teal,
+        backgroundColor: const Color.fromARGB(255, 102, 187, 236),
         foregroundColor: Colors.white,
         elevation: 1,
         leading: IconButton(

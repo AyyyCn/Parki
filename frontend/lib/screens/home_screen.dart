@@ -184,7 +184,7 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
          automaticallyImplyLeading: false,
         elevation: 0,
-        backgroundColor: Colors.teal,
+        backgroundColor: Color.fromARGB(255, 102, 187, 236),
         foregroundColor: Colors.white,
         title: isLoading
             ? const Text("Hello")
@@ -271,7 +271,7 @@ class _HomePageState extends State<HomePage> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                "🌟Nearby From You🌟",
+                "Nearby From You",
                 style: Theme.of(context).textTheme.titleLarge,
               ),
               if (!isLocationFetched || !isNearbyParkingsFetched) // Show loading indicator only when fetching nearby parkings

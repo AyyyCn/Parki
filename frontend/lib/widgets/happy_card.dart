@@ -28,7 +28,7 @@ class HappyCard extends StatelessWidget {
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
-                color: Colors.green,
+                color: Color.fromARGB(255, 102, 187, 236),
               ),
             ),
             const SizedBox(height: 10),

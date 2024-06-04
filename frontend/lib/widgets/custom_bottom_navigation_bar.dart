@@ -50,7 +50,7 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
       showUnselectedLabels: false,
       currentIndex: _selectedIndex,
       onTap: _onItemTapped,
-      selectedItemColor: const Color(0xFF846046), // Updated color
+      selectedItemColor:  const Color.fromARGB(255, 102, 187, 236),
       unselectedItemColor: Colors.grey,
       items: const [
         BottomNavigationBarItem(

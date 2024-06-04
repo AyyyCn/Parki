@@ -64,7 +64,7 @@ class _CreditScreenState extends State<CreditScreen>
     return Scaffold(
       appBar: AppBar(
          automaticallyImplyLeading: false,
-        backgroundColor: Colors.teal,
+        backgroundColor: Color.fromARGB(255, 102, 187, 236),
         title: Row(
           children: [
             Text(
@@ -156,7 +156,7 @@ class TotalCreditsWidget extends StatelessWidget {
           SizedBox(width: 10),
           Row(
             children: [
-              Icon(Icons.monetization_on, size: 30, color: Colors.yellow),
+              Icon(Icons.monetization_on, size: 30, color: Color.fromARGB(255, 102, 187, 236)),
               SizedBox(width: 5),
               Text(
                 '${userCredits.toStringAsFixed(2)} DT',
@@ -272,7 +272,7 @@ class CreditOption extends StatelessWidget {
                   SizedBox(height: 5),
                   Text(
                     'Earn: ${creditEarned.toStringAsFixed(2)} DT', // Ensured as a double
-                    style: TextStyle(fontSize: 14, color: Colors.green),
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Color.fromARGB(255, 102, 187, 236)),
                   ),
                 ],
               ),

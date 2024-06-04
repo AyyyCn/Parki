@@ -347,7 +347,7 @@ Future<void> updateUserProfile() async {
     return Scaffold(
       appBar: AppBar(
         
-         backgroundColor: Colors.teal,
+         backgroundColor: Color.fromARGB(255, 102, 187, 236),
         elevation: 0,
         leading: IconButton(
           icon: Icon(

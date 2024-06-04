@@ -107,7 +107,8 @@ class ParkingDetailsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.teal,
+        backgroundColor: Color.fromARGB(255, 102, 187, 236),
+        foregroundColor: Colors.white,
         title: Text('Parking Details'),
       ),
       body: SingleChildScrollView(
@@ -139,14 +140,14 @@ class ParkingDetailsPage extends StatelessWidget {
             SizedBox(height: 10),
             Row(
               children: [
-                Icon(Icons.location_on, color: Colors.blue[700]),
+                Icon(Icons.location_on, color: Color.fromARGB(255, 102, 187, 236)),
                 SizedBox(width: 5),
                 Flexible(
                   child: Text(
                     parking.address,
                     style: TextStyle(
                       fontSize: 16,
-                      color: Colors.blue[700],
+                      color: Color.fromARGB(255, 102, 187, 236),
                     ),
                   ),
                 ),
@@ -174,25 +175,35 @@ class ParkingDetailsPage extends StatelessWidget {
             SizedBox(height: 20),
             // Button to reserve parking
             ElevatedButton(
-              onPressed: parking.availableSpots > 0 ? () => _showLicensePlateSelectionDialog(context) : null,
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    Icons.lock,
-                    color: parking.availableSpots > 0 ? Colors.transparent : Colors.grey,
-                  ),
-                  SizedBox(width: 5),
-                  Text(
-                    'Reserve Parking',
-                    style: TextStyle(
-                      color: parking.availableSpots > 0 ? Color.fromARGB(255, 4, 111, 7) : Colors.grey,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-            ),
+  onPressed: parking.availableSpots > 0 ? () => _showLicensePlateSelectionDialog(context) : null,
+  style: ElevatedButton.styleFrom(
+    backgroundColor: parking.availableSpots > 0 ? Color.fromARGB(255, 102, 187, 236) : Colors.transparent,
+    disabledForegroundColor: Colors.grey.withOpacity(0.38), disabledBackgroundColor: Colors.grey.withOpacity(0.12), // Color when button is disabled
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(8),
+    ),
+    side: parking.availableSpots > 0 ? BorderSide.none : BorderSide(color: Colors.grey),
+    elevation: 0, // Remove shadow
+  ),
+  child: Row(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      Icon(
+        parking.availableSpots > 0 ? Icons.check : Icons.lock,
+        color: parking.availableSpots > 0 ? Colors.white : Colors.grey,
+      ),
+      SizedBox(width: 5),
+      Text(
+        'Reserve Parking',
+        style: TextStyle(
+          color: parking.availableSpots > 0 ? Colors.white : Colors.grey,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    ],
+  ),
+),
+
           ],
         ),
       ),
@@ -200,7 +211,7 @@ class ParkingDetailsPage extends StatelessWidget {
         onPressed: () {
           _openMap(parking.latitude.toString(), parking.longitude.toString());
         },
-        child: Icon(Icons.location_on),
+        child: Icon(Icons.location_on, color: Color.fromARGB(255, 102, 187, 236)),
       ),
     );
   }

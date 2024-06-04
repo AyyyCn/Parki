@@ -163,7 +163,6 @@ List<String> cookies = cookieHeader.split(RegExp(r'[;,]'));
   }
   return '';
 }
-
 @override
 Widget build(BuildContext context) {
   return Scaffold(
@@ -175,7 +174,7 @@ Widget build(BuildContext context) {
           decoration: const BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                Color(0xFFC4DEF6),
+                Color.fromARGB(255, 102, 187, 236),
                 Color.fromARGB(255, 102, 187, 236),
               ],
             ),
@@ -206,110 +205,111 @@ Widget build(BuildContext context) {
             width: double.infinity,
             child: Padding(
               padding: const EdgeInsets.only(left: 18.0, right: 18),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SizedBox(
-                    height: 50,
-                    child: TextField(
-                      /*inputFormatters: [
-                        FilteringTextInputFormatter.digitsOnly
-                      ], // Accepts only numeric input*/
-                      controller: phoneNumberController,
-                      keyboardType: TextInputType.phone,
-                      decoration: InputDecoration(
-                        suffixIcon: Icon(Icons.phone, color: Colors.grey),
-                        labelText: 'Phone Number',
-                        labelStyle: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Color.fromARGB(255, 0, 0, 0),
-                        ),
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    height: 50,
-                    child: TextFormField(
-                      obscureText: true,
-                      controller: passwordController,
-                      decoration: InputDecoration(
-                        suffixIcon: Icon(Icons.lock, color: Colors.grey),
-                        labelText: 'Password',
-                        labelStyle: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Color.fromARGB(255, 0, 0, 0),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  const SizedBox(height: 40),
-                  GestureDetector(
-                    onTap: () {
-                      loginUser();
-                    },
-                    child: Container(
-                      height: 55,
-                      width: 300,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(30),
-                        gradient: const LinearGradient(
-                          colors: [
-                            Color(0xFFC4DEF6),
-                            Color.fromARGB(255, 102, 187, 236),
-                          ],
-                        ),
-                      ),
-                      child: const Center(
-                        child: Text(
-                          'SIGN IN',
-                          style: TextStyle(
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SizedBox(height: 50),
+                    SizedBox(
+                      height: 70,
+                      child: TextField(
+                        controller: phoneNumberController,
+                        keyboardType: TextInputType.phone,
+                        decoration: InputDecoration(
+                          suffixIcon: Icon(Icons.phone, color: Colors.grey),
+                          labelText: 'Phone Number',
+                          labelStyle: TextStyle(
                             fontWeight: FontWeight.bold,
-                            fontSize: 20,
-                            color: Colors.white,
+                            color: Color.fromARGB(255, 0, 0, 0),
+                          ),
+                          contentPadding: EdgeInsets.symmetric(vertical: 20),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 20),
+                    SizedBox(
+                      height: 70,
+                      child: TextFormField(
+                        obscureText: true,
+                        controller: passwordController,
+                        decoration: InputDecoration(
+                          suffixIcon: Icon(Icons.lock, color: Colors.grey),
+                          labelText: 'Password',
+                          labelStyle: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Color.fromARGB(255, 0, 0, 0),
+                          ),
+                          contentPadding: EdgeInsets.symmetric(vertical: 20),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 40),
+                    GestureDetector(
+                      onTap: () {
+                        loginUser();
+                      },
+                      child: Container(
+                        height: 55,
+                        width: 300,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(30),
+                          gradient: const LinearGradient(
+                            colors: [
+                              Color.fromARGB(255, 102, 187, 236),
+                              Color.fromARGB(255, 102, 187, 236),
+                            ],
                           ),
                         ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  Align(
-                    alignment: Alignment.bottomRight,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Text(
-                          "Don't have an account?",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.grey,
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                        GestureDetector(
-                          onTap: () {
-                            // Navigate to the sign-up page
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => RegScreen(),
-                              ),
-                            );
-                          },
+                        child: const Center(
                           child: Text(
-                            "Sign up",
+                            'SIGN IN',
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
-                              fontSize: 17,
-                              color: Colors.black,
+                              fontSize: 20,
+                              color: Colors.white,
                             ),
                           ),
                         ),
-                      ],
+                      ),
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 20),
+                    Align(
+                      alignment: Alignment.bottomRight,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            "Don't have an account?",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.grey,
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => RegScreen(),
+                                ),
+                              );
+                            },
+                            child: Text(
+                              "Sign up",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 17,
+                                color: Colors.black,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -318,4 +318,5 @@ Widget build(BuildContext context) {
     ),
   );
 }
+
 }

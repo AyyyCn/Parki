@@ -91,13 +91,13 @@ class NearbyParkings extends StatelessWidget {
                         Icon(
                           Icons.local_parking,
                           size: 16,
-                          color: Colors.orange[600],
+                          color: Colors.blue[600],
                         ),
                         SizedBox(width: 4),
                         Text(
                           '${parking.availableSpots}/${parking.totalSpots} spots available',
                           style: TextStyle(
-                            color: parking.availableSpots > 0 ? Colors.green[600] : Colors.grey[600],
+                            color: parking.availableSpots > 0 ? Colors.blue[600]: Colors.grey[600],
                           ),
                         ),
                       ],
@@ -108,13 +108,13 @@ class NearbyParkings extends StatelessWidget {
                         Icon(
                           Icons.attach_money,
                           size: 16,
-                          color: Colors.yellow[800],
+                          color: Colors.blue[600],
                         ),
                         SizedBox(width: 4),
                         Text(
                           '${parking.pricePerHour.toStringAsFixed(2)} TND per hour',
                           style: TextStyle(
-                            color: Colors.yellow[800],
+                            color: Colors.blue[600],
                           ),
                         ),
                       ],
