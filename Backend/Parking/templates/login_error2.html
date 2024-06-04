@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Car Registration Error</title>
+    <!-- Include Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- Include Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .container {
+            margin-top: 100px;
+        }
+
+        .alert {
+            border-radius: 8px;
+        }
+
+        .alert-heading {
+            font-size: 1.5rem;
+        }
+
+        .list-unstyled li {
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+        }
+
+        .icon-error {
+            color: #dc3545;
+            margin-right: 10px;
+        }
+
+        .card {
+            border: none;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            border: none;
+            font-size: 1rem;
+            padding: 10px 20px;
+            border-radius: 50px;
+            transition: background-color 0.3s;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+
+        .retry-btn {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        /* Car-themed styling */
+        .car-image {
+            max-width: 150%;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-body">
+                        <img src="https://worksafetci.com/wp-content/uploads/wrong-way-sign.jpg" alt="Car" class="car-image">
+                        {% if error %}
+                            <div class="alert alert-danger">
+                                <h4 class="alert-heading"><i class="fas fa-exclamation-circle icon-error"></i>Oops! There are some issues:</h4>
+                                <ul class="list-unstyled">
+                                    
+                                      
+                                    <li><i class="fas fa-times-circle icon-error"></i>{{ error }}</li>
+                                        
+                                    
+                                </ul>
+                                <p class="mb-0">Please review the form and correct the errors.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="retry-btn">
+                    <a href="{% url 'parking_owner_register' %}" class="btn btn-primary">Try Again</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Include Bootstrap JS (optional) -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
