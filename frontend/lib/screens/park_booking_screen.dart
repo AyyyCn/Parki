@@ -663,7 +663,7 @@ class CompletedSessionCard extends StatelessWidget {
               ],
             ),
             SizedBox(height: 8),
-            Text('Price Paid: \$${pricePaid.toStringAsFixed(2)}'),
+            Text('Price Paid: ${pricePaid.toStringAsFixed(2)} TND'),
             SizedBox(height: 8),
             TextButton.icon(
               onPressed: onRepark,
