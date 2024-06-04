@@ -6,8 +6,10 @@ import 'package:frontend/screens/home_screen.dart';
 import 'package:frontend/screens/parking_detail_screen.dart';
 import 'package:frontend/widgets/confetti_card.dart';
 import 'package:frontend/widgets/custom_bottom_navigation_bar.dart';
+import 'package:frontend/widgets/custom_icon.dart';
 import 'package:frontend/widgets/happy_card.dart';
 import 'package:frontend/widgets/sad_card.dart';
+import 'package:ionicons/ionicons.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:async';
 import 'package:intl/intl.dart';
@@ -168,8 +170,22 @@ class _ParkBookingScreenState extends State<ParkBookingScreen> {
   Widget build(BuildContext context) {
   return Scaffold(
     appBar: AppBar(
-      title: Text('My Bookings'),
+       automaticallyImplyLeading: false,
       backgroundColor: Colors.teal,
+      foregroundColor: Colors.white,
+      title: Row(
+          children: [
+            Text(
+              'Your Parking Sessions',
+              style: TextStyle(color: Colors.white), // Set text color to white
+            ),
+            Spacer(), // Add spacer to push the money icon to the right
+            Icon(
+              Icons.time_to_leave_outlined,
+              color: Colors.white, // Set icon color to white
+            ),
+          ],
+        ),
     ),
     body: Column(
       crossAxisAlignment: CrossAxisAlignment.start,

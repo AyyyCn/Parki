@@ -168,6 +168,7 @@ Widget build(BuildContext context) {
     body: CustomScrollView(
       slivers: [
         SliverAppBar(
+           automaticallyImplyLeading: false,
            backgroundColor: Colors.teal,
           title: Text(
             'Your Profile',

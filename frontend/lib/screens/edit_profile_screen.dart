@@ -346,6 +346,7 @@ Future<void> updateUserProfile() async {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        
          backgroundColor: Colors.teal,
         elevation: 0,
         leading: IconButton(

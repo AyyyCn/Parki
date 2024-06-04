@@ -63,6 +63,7 @@ class _CreditScreenState extends State<CreditScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+         automaticallyImplyLeading: false,
         backgroundColor: Colors.teal,
         title: Row(
           children: [

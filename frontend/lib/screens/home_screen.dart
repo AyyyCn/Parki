@@ -182,6 +182,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+         automaticallyImplyLeading: false,
         elevation: 0,
         backgroundColor: Colors.teal,
         foregroundColor: Colors.white,
@@ -210,12 +211,7 @@ class _HomePageState extends State<HomePage> {
               );
             },
           ),
-          Padding(
-            padding: const EdgeInsets.only(left: 8.0, right: 12),
-            child: CustomIconButton(
-              icon: const Icon(Ionicons.notifications_outline),
-            ),
-          ),
+          
         ],
       ),
       body: ListView(
