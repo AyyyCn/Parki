@@ -104,8 +104,7 @@ class ParkingSession(models.Model):
     def calculate_cost(self):
         """Calculate the cost of the parking session."""
         duration = self.calculate_duration()
-        if duration<1:
-            duration = 5
+        
         return duration * float(self.parking.price_per_hour)
 
 
