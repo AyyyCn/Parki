@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/widgets/search_parking_card.dart'; // Import the correct widget for each parking item
 import 'package:ionicons/ionicons.dart';
+import 'package:dio/dio.dart';
+import 'package:frontend/models/nearby_parking_model.dart';
 
 class SearchPage extends StatefulWidget {
   const SearchPage({Key? key}) : super(key: key);
@@ -11,14 +14,45 @@ class SearchPage extends StatefulWidget {
 class _SearchPageState extends State<SearchPage> {
   final TextEditingController _searchController = TextEditingController();
   bool _isSearching = false;
-  List<String> _searchResults = [];
+  List<NearbyParkingModel> _searchResults = [];
 
-  void _performSearch(String query) {
+  void _performSearch(String query) async {
     setState(() {
       _isSearching = true;
-      _searchResults = List.generate(10, (index) => 'Result $index for "$query"');
-      _isSearching = false;
     });
+
+    try {
+      final dio = Dio();
+      final response = await dio.get('http://10.0.2.2:8000/parking', queryParameters: {'name': query});
+      if (response.statusCode == 200) {
+        setState(() {
+          _searchResults = (response.data as List).map((data) {
+            return NearbyParkingModel(
+              id: data['id'],
+              name: data['name'],
+              longitude: data['longitude'],
+              latitude: data['latitude'],
+              address: data['address'],
+              totalSpots: data['total_spots'],
+              availableSpots: data['available_spots'],
+              pricePerHour: double.tryParse(data['price_per_hour'].toString()) ?? 0.0,
+              image: data['image'] ?? 'images/parkings/parking1.jpg',
+              distance: double.tryParse(data['distance'].toString()) ?? 0.0, // Assuming distance is provided
+            );
+          }).toList();
+          _isSearching = false;
+        });
+      } else {
+        throw Exception('Failed to load search results');
+      }
+    } catch (e) {
+      setState(() {
+        _isSearching = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error fetching search results: $e')),
+      );
+    }
   }
 
   void _clearSearch() {
@@ -80,21 +114,8 @@ class _SearchPageState extends State<SearchPage> {
                   padding: const EdgeInsets.all(16.0),
                   itemCount: _searchResults.length,
                   itemBuilder: (context, index) {
-                    return Card(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15.0),
-                      ),
-                      elevation: 2,
-                      margin: const EdgeInsets.symmetric(vertical: 8.0),
-                      child: ListTile(
-                        leading: const Icon(Ionicons.search_outline),
-                        title: Text(_searchResults[index]),
-                        trailing: const Icon(Ionicons.arrow_forward),
-                        onTap: () {
-                          // Handle result tap
-                        },
-                      ),
-                    );
+                    final parking = _searchResults[index];
+                    return SearchParkingCard(parking: parking);
                   },
                 ),
     );

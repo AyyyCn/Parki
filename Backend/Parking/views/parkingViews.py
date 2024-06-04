@@ -13,7 +13,7 @@ class ParkingAPIView(APIView):
         name_exists = request.query_params.get('name', None)
         id_exists = request.query_params.get('id', None) 
         if name_exists:
-            pkings = parkings.filter(name=name_exists)
+            pkings = parkings.filter(name__icontains=name_exists)  
             serializer = ParkingSerializer(pkings, many=True)
             return Response(serializer.data)
         elif id_exists:
