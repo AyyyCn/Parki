@@ -204,7 +204,8 @@ class ReserveSpot(APIView):
 
         # Map the status to HTTP status codes
         status_map = {
-            "session_already_active": status.HTTP_200_OK
+            "session_already_active": status.HTTP_200_OK,
+            "session_started": status.HTTP_200_OK
         }
 
         # Get the HTTP status from the map, default to 400 if not found
