@@ -50,6 +50,8 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
       showUnselectedLabels: false,
       currentIndex: _selectedIndex,
       onTap: _onItemTapped,
+      selectedItemColor: const Color(0xFF846046), // Updated color
+      unselectedItemColor: Colors.grey,
       items: const [
         BottomNavigationBarItem(
           icon: Icon(Ionicons.home_outline),
@@ -97,6 +99,7 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
       }
     }
   }
+
   void _navigateTo(BuildContext context, String routeName) {
     Navigator.of(context).pushReplacementNamed(routeName);
   }

@@ -1,12 +1,16 @@
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart';
+import 'package:frontend/models/nearby_parking_model.dart';
+import 'package:frontend/screens/credit_screen.dart';
 import 'package:frontend/screens/home_screen.dart';
+import 'package:frontend/screens/parking_detail_screen.dart';
 import 'package:frontend/widgets/confetti_card.dart';
 import 'package:frontend/widgets/custom_bottom_navigation_bar.dart';
 import 'package:frontend/widgets/happy_card.dart';
 import 'package:frontend/widgets/sad_card.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:async';
+import 'package:intl/intl.dart';
 
 class ParkBookingScreen extends StatefulWidget {
   @override
@@ -16,15 +20,36 @@ class ParkBookingScreen extends StatefulWidget {
 class _ParkBookingScreenState extends State<ParkBookingScreen> {
   List<dynamic> parkingSessions = [];
   bool isLoading = true;
+  Timer? _timer;
+  String _selectedTimeFrame = 'Today'; 
 
   @override
   void initState() {
     super.initState();
     fetchParkingSessions();
+    _startTimer();
   }
 
+  Future<Map<String, dynamic>> fetchParkingById(int parkingId) async {
+  try {
+    var dio = Dio();
+    var response = await dio.get('http://10.0.2.2:8000/parking?id=$parkingId');
+
+    if (response.statusCode == 200) {
+      return response.data;
+    } else {
+      throw Exception('Failed to fetch parking');
+    }
+  } catch (e) {
+    throw Exception('Error fetching parking: $e');
+  }
+}
   Future<void> fetchParkingSessions() async {
     try {
+      setState(() {
+        isLoading = true;
+      });
+
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? sessionId = prefs.getString('sessionId');
       String? csrfToken = prefs.getString('csrfToken');
@@ -33,10 +58,9 @@ class _ParkBookingScreenState extends State<ParkBookingScreen> {
       dio.options.headers['Cookie'] = 'sessionid=$sessionId; csrftoken=$csrfToken';
       dio.options.headers['X-CSRFToken'] = csrfToken;
 
-      var url = 'http://10.0.2.2:8000/parkingsession';
+      var url = 'http://10.0.2.2:8000/parkingsession?timeframe=$_selectedTimeFrame';
       var response = await dio.get(url);
 
-      // Fetch parking names and price per hour using parking IDs
       for (var session in response.data) {
         var parkingId = session['parking'];
         var parkingUrl = 'http://10.0.2.2:8000/parking?id=$parkingId';
@@ -51,16 +75,21 @@ class _ParkBookingScreenState extends State<ParkBookingScreen> {
         isLoading = false;
       });
     } catch (e) {
-      print('Error fetching parking sessions: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error fetching parking sessions: $e')),
+      );
+
       setState(() {
         isLoading = false;
       });
     }
   }
-
- Future<String> pay(int parkingId, String licensePlate) async {
-  String message = "";
+  Future<void> fetchParkingSessionsCustomized(String text) async {
   try {
+    setState(() {
+      isLoading = true;
+    });
+
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? sessionId = prefs.getString('sessionId');
     String? csrfToken = prefs.getString('csrfToken');
@@ -69,99 +98,177 @@ class _ParkBookingScreenState extends State<ParkBookingScreen> {
     dio.options.headers['Cookie'] = 'sessionid=$sessionId; csrftoken=$csrfToken';
     dio.options.headers['X-CSRFToken'] = csrfToken;
 
-    var url = 'http://10.0.2.2:8000/pay';
-    var response = await dio.post(
-      url,
-      data: {
-        'parking_id': parkingId.toString(),
-        'license_plate': licensePlate,
-      },
-    );
-    message = response.data['message'];
+    var now = DateTime.now();
+    var url = 'http://10.0.2.2:8000/parkingsession?timeframe=$text';
+    if (text == 'Today') {
+      var formattedDate = DateFormat('yyyy-MM-dd').format(now);
+      url += '&start_date=$formattedDate';
+    } else if (text == 'LastWeek') {
+      var startDate = now.subtract(Duration(days: 7));
+      var formattedDate = DateFormat('yyyy-MM-dd').format(startDate);
+      url += '&start_date=$formattedDate';
+    } else if (text == 'LastMonth') {
+      var startDate = now.subtract(Duration(days: 30));
+      var formattedDate = DateFormat('yyyy-MM-dd').format(startDate);
+      url += '&start_date=$formattedDate';
+    } else if (text == 'LastYear') {
+      var startDate = now.subtract(Duration(days: 365));
+      var formattedDate = DateFormat('yyyy-MM-dd').format(startDate);
+      url += '&start_date=$formattedDate';
+    }
+
+    var response = await dio.get(url);
+
+    for (var session in response.data) {
+      var parkingId = session['parking'];
+      var parkingUrl = 'http://10.0.2.2:8000/parking?id=$parkingId';
+      var parkingResponse = await dio.get(parkingUrl);
+            session['parkingName'] = parkingResponse.data['name'];
+      session['price_per_hour'] = double.tryParse(parkingResponse.data['price_per_hour'].toString()) ?? 0.0;
+    }
+
+    setState(() {
+      parkingSessions = response.data;
+      parkingSessions.sort((a, b) => DateTime.parse(b['entry_time']).compareTo(DateTime.parse(a['entry_time'])));
+      isLoading = false;
+    });
   } catch (e) {
-    print('Error when paying: $e');
-    throw e; // Rethrow the error to handle it in the caller function
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Error fetching parking sessions: $e')),
+    );
+
+    setState(() {
+      isLoading = false;
+    });
   }
-  return message;
 }
 
 
+
+
+  void _startTimer() {
+    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+      setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
   double calculateCurrentPrice(DateTime entryTime, double pricePerHour) {
     Duration duration = DateTime.now().difference(entryTime);
-    int hours = (duration.inMinutes / 60.0).ceil();
+    double hours = duration.inMinutes / 60.0;
     return hours * pricePerHour;
   }
 
-  double calculateTotalPriceToPay() {
-    // Calculate the sum of prices for running sessions
-    double totalPrice = 0.0;
-    for (var session in parkingSessions) {
-      if (session['paid'] == false) {
-        double pricePerHour = session['price_per_hour'] ?? 0.0;
-        DateTime entryTime = DateTime.parse(session['entry_time'] ?? DateTime.now().toString());
-        double currentPrice = calculateCurrentPrice(entryTime, pricePerHour);
-        totalPrice += currentPrice;
-      }
-    }
-    return totalPrice;
-  }
-
- @override
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Row(
-  children: [
-    SizedBox(width: 10),
-    Expanded(
-      child: Text(
-        "Your Parking \nSessions",
-        overflow: TextOverflow.visible,
-        style: TextStyle(color: Colors.white), // Set text color to white
-      ),
+  return Scaffold(
+    appBar: AppBar(
+      title: Text('My Bookings'),
+      backgroundColor: Colors.teal,
     ),
-    Spacer(), // Add spacer to push the money icon to the right
-    Icon(
-      Icons.access_time,
-      color: Colors.white, // Set icon color to white
-    ),
-  ],
-),
-        backgroundColor: Color.fromARGB(255, 45, 139, 247),
-        foregroundColor: Colors.white,
-        elevation: 1,
-      ),
-      body: isLoading
-          ? Center(child: CircularProgressIndicator())
-          : Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: ListView(
+    body: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Padding(
+            padding: EdgeInsets.all(16.0),
+            child: Row(
+              children: [
+                TimeFrameButton(
+                  text: 'Today',
+                  isSelected: _selectedTimeFrame == 'Today',
+                  onTap: () {
+                    setState(() {
+                      _selectedTimeFrame = 'Today';
+                    });
+                    fetchParkingSessionsCustomized('Today');
+                  },
+                ),
+                SizedBox(width: 8),
+                TimeFrameButton(
+                  text: 'Last Week',
+                  isSelected: _selectedTimeFrame == 'Last Week',
+                  onTap: () {
+                    setState(() {
+                      _selectedTimeFrame = 'Last Week';
+                    });
+                    fetchParkingSessionsCustomized('LastWeek');
+                  },
+                ),
+                SizedBox(width: 8),
+                TimeFrameButton(
+                  text: 'Last Month',
+                  isSelected: _selectedTimeFrame == 'Last Month',
+                  onTap: () {
+                    setState(() {
+                      _selectedTimeFrame = 'LastMonth';
+                    });
+                    fetchParkingSessionsCustomized('LastMonth');
+                  },
+                ),
+                SizedBox(width: 8),
+                TimeFrameButton(
+                  text: 'Last Year',
+                  isSelected: _selectedTimeFrame == 'Last Year',
+                  onTap: () {
+                    setState(() {
+                      _selectedTimeFrame = 'Last Year';
+                    });
+                    fetchParkingSessionsCustomized('LastYear');
+                  },
+                ),
+              ],
+            ),
+          ),
+        ),
+        isLoading
+            ? Center(child: CircularProgressIndicator())
+            : Expanded(
+  child: isLoading
+      ? Center(child: CircularProgressIndicator())
+      : parkingSessions.isEmpty
+          ? Center(
+              child: Text(
+                'No parking sessions',
+                style: TextStyle(fontSize: 18),
+              ),
+            )
+          : SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  TotalPriceCard(totalPrice: calculateTotalPriceToPay()),
-                  SizedBox(height: 10),
-                  ListView.separated(
-                    physics: const BouncingScrollPhysics(),
+                  Padding(
+                    padding: EdgeInsets.all(16.0),
+                    child: Text(
+                      'Total Price to Pay: ${calculateTotalPriceToPay().toStringAsFixed(2) }TND',
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.teal),
+                    ),
+                  ),
+                  ListView.builder(
                     shrinkWrap: true,
-                    scrollDirection: Axis.vertical,
+                    physics: NeverScrollableScrollPhysics(),
+                    itemCount: parkingSessions.length,
                     itemBuilder: (context, index) {
                       var session = parkingSessions[index];
-                      bool isRunning = session['end_time'] == null;
-                      double pricePerHour = session['price_per_hour'] ?? 0.0;
-                      DateTime entryTime = DateTime.parse(session['entry_time'] ?? DateTime.now().toString());
-                      double currentPrice = calculateCurrentPrice(entryTime, pricePerHour);
+                      DateTime entryTime = DateTime.parse(session['entry_time']);
+                      bool isRunning = !session['paid'];
+                      double currentPrice = calculateCurrentPrice(entryTime, session['price_per_hour']);
 
                       return isRunning
-                          ? RunningReservationCard(
-                              parkingName: session['parkingName'] ?? "Unknown Parking",
-                              startTime: session['entry_time'] ?? "Unknown Time",
-                              price: currentPrice,
-                              duration: "00:00:00", // Placeholder, update logic as needed
-                              licensePlate: session['license_plate'] ?? "Unknown",
-                              isPaid: session['paid'] ?? false,
-                              payTime: session['pay_time'] ?? "Unknown Time",
-                              
-                              onPayPressed: () async {
-                                double amount = currentPrice; // Assuming currentPrice holds the amount of money to pay
+                          ? AnimatedRunningSessionCard(
+                              key: ValueKey(session['id']),
+                              parkingName: session['parkingName'],
+                              licensePlate: session['license_plate'],
+                              entryTime: entryTime,
+                              currentPrice: currentPrice,
+                              onPay: () async {
+                                String amount = currentPrice.toStringAsFixed(2); // Assuming currentPrice holds the amount of money to pay
 
                                 // Show dialog to confirm payment
                                 bool confirmPayment = await showDialog(
@@ -218,8 +325,7 @@ class _ParkBookingScreenState extends State<ParkBookingScreen> {
                                 if (confirmPayment == true) {
         
                                   try {
-                                    print("9bal lpayment");
-                                    print(session["parking"]); print( session["license_plate"]);
+                                    
                                     String message = await pay(session["parking"], session["license_plate"]);
                                     Widget card;
                                     if (message == "Payment successful. Thank you! Please leave within 15 minutes.") {
@@ -259,7 +365,7 @@ class _ParkBookingScreenState extends State<ParkBookingScreen> {
                                           actions: <Widget>[
                                             TextButton(
                                                 onPressed: () {
-                                                  Navigator.push(context, MaterialPageRoute(builder: (context) => HomePage()));
+                                                  Navigator.push(context, MaterialPageRoute(builder: (context) => CreditScreen()));
                                                 },
                                                 child: Text('OK'),
                                               ),
@@ -272,88 +378,115 @@ class _ParkBookingScreenState extends State<ParkBookingScreen> {
                                 }
                               },
 
-
-
-
-
-
                             )
-                          : ReservationCard(
-                              parkingName: session['parkingName'] ?? "Unknown Parking",
-                              startTime: session['entry_time'] ?? "Unknown Time",
-                              endTime: session['end_time'] ?? "Unknown Time",
-                              payTime: session['pay_time'] ?? "Unknown Time",
-                              price: session['price'] ?? 0.0,
-                              licensePlate: session['license_plate'] ?? "Unknown",
+                          : CompletedSessionCard(
+                              parkingName: session['parkingName'],
+                              licensePlate: session['license_plate'],
+                              entryTime: entryTime,
+                              pricePaid: currentPrice,
+                              onRepark: () async {
+  try {
+    // Fetch parking details using parking ID
+    var parking = await fetchParkingById(session['parking']);
+    print(parking);
+    var parkingModel = NearbyParkingModel(
+      id: parking['id'],
+      name: parking['name'],
+      longitude: parking['longitude'],
+      latitude: parking['latitude'],
+      address: parking['address'], // Corrected typo here
+      totalSpots: parking['total_spots'],
+      availableSpots: parking['available_spots'],
+      pricePerHour: double.tryParse(parking['price_per_hour']) ?? 0.0,
+      image: parking['image'] ?? "images/parkings/parking1.jpg",
+      distance: 0, // 0 being a random int
+    );
+    print(parkingModel);
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ParkingDetailsPage(parking: parkingModel),
+      ),
+    );
+  } catch (e) {
+    print('Error while fetching parking details: $e');
+  }
+},
+
+
                             );
                     },
-                    separatorBuilder: (context, index) => const SizedBox(height: 10),
-                    itemCount: parkingSessions.length,
                   ),
                 ],
               ),
             ),
-      bottomNavigationBar: CustomBottomNavigationBar(),
-    );
+),
+
+      ],
+    ),
+    bottomNavigationBar: CustomBottomNavigationBar(),
+  );
+}
+
+  double calculateTotalPriceToPay() {
+    double totalPrice = 0.0;
+    for (var session in parkingSessions) {
+      if (session['paid'] == false) {
+        double pricePerHour = session['price_per_hour'] ?? 0.0;
+        DateTime entryTime = DateTime.parse(session['entry_time'] ?? DateTime.now().toString());
+        double currentPrice = calculateCurrentPrice(entryTime, pricePerHour);
+        totalPrice += currentPrice;
+      }
+    }
+    return totalPrice;
+  }
+
+  Future<String> pay(int parkingId, String licensePlate) async {
+    String message = "";
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? sessionId = prefs.getString('sessionId');
+      String? csrfToken = prefs.getString('csrfToken');
+
+      var dio = Dio();
+      dio.options.headers['Cookie'] = 'sessionid=$sessionId; csrftoken=$csrfToken';
+      dio.options.headers['X-CSRFToken'] = csrfToken;
+
+      var url = 'http://10.0.2.2:8000/pay';
+      var response = await dio.post(
+        url,
+        data: {
+          'parking_id': parkingId
+          .toString(),
+          'license_plate': licensePlate,
+        },
+      );
+      message = response.data['message'];
+    } catch (e) {
+      print('Error when paying: $e');
+      throw e; // Rethrow the error to handle it in the caller function
+    }
+    return message;
   }
 }
 
-class RunningReservationCard extends StatefulWidget {
+class AnimatedRunningSessionCard extends StatelessWidget {
   final String parkingName;
-  final String startTime;
-  final double price;
-  final String duration;
+  final DateTime entryTime;
+  final double currentPrice;
+  final VoidCallback onPay;
   final String licensePlate;
-  final bool isPaid;
-  final String payTime;
-  final VoidCallback onPayPressed;
 
-  const RunningReservationCard({
-    Key? key,
+
+  AnimatedRunningSessionCard({
     required this.parkingName,
-    required this.startTime,
-    required this.price,
-    required this.duration,
-    required this.licensePlate,
-    required this.isPaid,
-    required this.payTime,
-    required this.onPayPressed,
+    required this.entryTime,
+    required this.currentPrice,
+    required this.onPay,
+    required this.licensePlate, 
+
+    Key? key,
   }) : super(key: key);
-
-  @override
-  _RunningReservationCardState createState() => _RunningReservationCardState();
-}
-
-class _RunningReservationCardState extends State<RunningReservationCard> {
-  late Timer _timer= Timer(Duration(seconds: 0), (){});
-  late DateTime _startTime;
-  late Duration _runningDuration;
-
-  @override
-  void initState() {
-    super.initState();
-    _startTime = DateTime.tryParse(widget.startTime) ?? DateTime.now(); // Handle invalid dates
-    _runningDuration = Duration(); // Initialize running duration
-    if (!widget.isPaid) {
-      _startTimer();
-    }
-  }
-
-  void _startTimer() {
-    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
-      setState(() {
-        _runningDuration = DateTime.now().difference(_startTime);
-      });
-    });
-  }
-
-  @override
-  void dispose() {
-    if (_timer.isActive) {
-      _timer.cancel();
-    }
-    super.dispose();
-  }
 
   String _formatDuration(Duration duration) {
     String twoDigits(int n) => n.toString().padLeft(2, '0');
@@ -362,170 +495,82 @@ class _RunningReservationCardState extends State<RunningReservationCard> {
     return "${twoDigits(duration.inHours)}:$twoDigitMinutes:$twoDigitSeconds";
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(15),
-      ),
-      color: widget.isPaid ? Color.fromARGB(255, 87, 97, 164) : Color.fromARGB(255, 58, 122, 133),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Text(
-              widget.parkingName,
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
-            ),
-            SizedBox(height: 10),
-            Text(
-              "Start Time: ${widget.startTime}",
-              style: TextStyle(color: Colors.white),
-            ),
-            SizedBox(height: 10),
-            Text(
-              widget.isPaid ? "Paid Price: \$${widget.price.toStringAsFixed(2)}" : "Current Price: \$${widget.price.toStringAsFixed(2)}",
-              style: TextStyle(color: Colors.white),
-            ),
-            SizedBox(height: 10),
-            Text(
-              "License Plate: ${widget.licensePlate}",
-              style: TextStyle(color: Colors.white),
-            ),
-            SizedBox(height: 10),
-            if (widget.isPaid)
-              Text(
-                "Pay Time: ${widget.payTime}",
-                style: TextStyle(
-                  color: Colors.greenAccent,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
-              )
-            else
-              Text(
-                "Running: ${_formatDuration(_runningDuration)}",
-                style: TextStyle(
-                  color: Colors.orangeAccent,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
-              ),
-            SizedBox(height: 10),
-            if (!widget.isPaid)
-              ElevatedButton(
-                onPressed: widget.onPayPressed,
-                style: ElevatedButton.styleFrom(
-                  foregroundColor: Colors.black, backgroundColor: Colors.greenAccent, // text color
-                ),
-                child: Text("Pay"),
-              ),
-          ],
-        ),
-      ),
-    );
+  String _formatDateTime(DateTime dateTime) {
+    return '${dateTime.year}-${dateTime.month}-${dateTime.day} ${dateTime.hour}:${dateTime.minute}:${dateTime.second}';
   }
-}
-
-class ReservationCard extends StatelessWidget {
-  final String parkingName;
-  final String startTime;
-  final String endTime;
-  final String payTime;
-  final double price;
-  final String licensePlate;
-
-  const ReservationCard({
-    Key? key,
-    required this.parkingName,
-    required this.startTime,
-    required this.endTime,
-    required this.payTime,
-    required this.price,
-    required this.licensePlate,
-  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(15),
+    return AnimatedContainer(
+      duration: Duration(milliseconds: 500),
+      curve: Curves.easeInOut,
+      margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(15.0),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.5),
+            spreadRadius: 3,
+            blurRadius: 5,
+            offset: Offset(0, 3),
+          ),
+        ],
       ),
-      color: Color.fromARGB(255, 45, 139, 247),
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Text(
-              parkingName,
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
-            ),
-            SizedBox(height: 10),
-            Text(
-              "Start Time: $startTime",
-              style: TextStyle(color: Colors.white),
-            ),
-            SizedBox(height: 10),
-            Text(
-              "End Time: $endTime",
-              style: TextStyle(color: Colors.white),
-            ),
-            SizedBox(height: 10),
-            Text(
-              "Pay Time: $payTime",
-              style: TextStyle(color: Colors.white),
-            ),
-            SizedBox(height: 10),
-            Text(
-              "Price: ${price.toStringAsFixed(2)}",
-              style: TextStyle(color: Colors.white),
-            ),
-            SizedBox(height: 10),
-            Text(
-              "License Plate: $licensePlate",
-              style: TextStyle(color: Colors.white),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class TotalPriceCard extends StatelessWidget {
-  final double totalPrice;
-
-  const TotalPriceCard({
-    Key? key,
-    required this.totalPrice,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      color: Color.fromARGB(255, 58, 122, 133),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              "Total Price to be Paid",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+            Row(
+              children: [
+                Icon(Icons.local_parking, color: Colors.orange),
+                SizedBox(width: 8),
+                Text(
+                  parkingName,
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+              ],
             ),
-            SizedBox(height: 10),
-            Center( 
-              child:
-            Text(
-              "\$${totalPrice.toStringAsFixed(2)}",
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.amberAccent),
-            ),)
+            SizedBox(height: 8),
+            Row(
+              children: [
+                Icon(Icons.directions_car, color: Colors.grey),
+                SizedBox(width: 8),
+                Text('${licensePlate}'),
+              ],
+            ),
+            SizedBox(height: 8),
+            Row(
+              children: [
+                Icon(Icons.access_time, color: Colors.grey),
+                SizedBox(width: 8),
+                Text('Start Time: ${_formatDateTime(entryTime)}'),
+              ],
+            ),
+            SizedBox(height: 8),
+            Row(
+              children: [
+                Icon(Icons.timer, color: Colors.grey),
+                SizedBox(width: 8),
+                Text('Duration: ${_formatDuration(DateTime.now().difference(entryTime))}'),
+              ],
+            ),
+            SizedBox(height: 8),
+            Text('Current Price: ${currentPrice.toStringAsFixed(2)} TND'),
+            SizedBox(height: 8),
+            ElevatedButton(
+              onPressed: onPay,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.teal,
+                elevation: 0,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                child: Text('Pay', style: TextStyle(fontSize: 16)),
+              ),
+            ),
           ],
         ),
       ),
@@ -533,3 +578,105 @@ class TotalPriceCard extends StatelessWidget {
   }
 }
 
+class TimeFrameButton extends StatelessWidget {
+  final String text;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  TimeFrameButton({
+    required this.text,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+        decoration: BoxDecoration(
+          color: isSelected ? Colors.teal : Colors.transparent,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Text(
+          text,
+          style: TextStyle(color: isSelected ? Colors.white : Colors.black),
+        ),
+      ),
+    );
+  }
+}
+
+class CompletedSessionCard extends StatelessWidget {
+  final String parkingName;
+  final DateTime entryTime;
+  final double pricePaid;
+  final VoidCallback onRepark;
+  final String licensePlate;
+
+  CompletedSessionCard({
+    required this.parkingName,
+    required this.entryTime,
+    required this.pricePaid,
+    required this.onRepark,
+    required this.licensePlate,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      elevation: 5,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(15.0),
+      ),
+      margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Padding(
+        padding: EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.history, color: Colors.grey),
+                SizedBox(width: 8),
+                Text(
+                  parkingName,
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+            SizedBox(height: 8),
+            Row(
+              children: [
+                Icon(Icons.directions_car, color: Colors.grey),
+                SizedBox(width: 8),
+                Text('${licensePlate}'),
+              ],
+            ),
+            SizedBox(height: 8),
+            Row(
+              children: [
+                Icon(Icons.access_time, color: Colors.grey),
+                SizedBox(width: 8),
+                Text('Parked on: ${_formatDateTime(entryTime)}'),
+              ],
+            ),
+            SizedBox(height: 8),
+            Text('Price Paid: ${pricePaid.toStringAsFixed(2)} TND'),
+            SizedBox(height: 8),
+            TextButton.icon(
+              onPressed: onRepark,
+              icon: Icon(Icons.directions_car, color: Colors.teal),
+              label: Text('Re-Park'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _formatDateTime(DateTime dateTime) {
+    return '${dateTime.year}-${dateTime.month}-${dateTime.day} ${dateTime.hour}:${dateTime.minute}:${dateTime.second}';
+  }
+}
