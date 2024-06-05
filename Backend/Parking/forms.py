@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 
 from .models import CustomUser, ParkingOwner
-
+from .models import Parking
 
 
 
@@ -52,3 +52,11 @@ class ParkingOwnerRegisterForm(UserCreationForm):
         if commit:
             user.save()
         return user
+
+
+
+
+class ParkingSpaceForm(forms.ModelForm):
+    class Meta:
+        model = Parking
+        fields = ['name', 'address', 'total_spots', 'price_per_hour']

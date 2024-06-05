@@ -10,6 +10,8 @@
             background-color: #f2f2f2;
             margin: 0;
             padding: 0;
+            background: url('https://th.bing.com/th/id/OIG3.saUBL5UrLHDTAa.Z0EG0?pid=ImgGn') no-repeat center center fixed;
+            background-size: cover;
         }
 
         .container {
@@ -55,7 +57,7 @@
             display: inline-block;
             margin: 10px 0;
             padding: 10px 20px;
-            background-color: #d9534f;
+            background-color: #f5a77a;
             color: white;
             text-align: center;
             text-decoration: none;
@@ -70,6 +72,10 @@
 
         .btn-container {
             text-align: right;
+        }
+        .cbtn-container {
+            text-align: left;
+            margin-bottom: 10px;
         }
 
         .show-numbers-btn {
@@ -89,18 +95,96 @@
             background-color: #31b0d5;
         }
 
-        #chart-container {
+        #chart-container,
+        #chart-container2 {
             display: none;
             margin-top: 20px;
+            margin-left: auto;
+            margin-right: auto;
         }
 
-        #chart {
+        
+
+        #chart,
+        #chart2 {
             width: 100%;
             height: auto;
         }
+
+        
         #parking-form {
             display: none;
         }
+
+        .form-container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            width: 100%;
+        }
+
+        .form-container h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: bold;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+            background-color: #f9f9f9;
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+
+        .form-group input:focus {
+            border-color: #5bc0de;
+            outline: none;
+            box-shadow: 0 0 8px rgba(91, 192, 222, 0.3);
+            background-color: #fff;
+        }
+
+        button {
+            width: 50%;
+            padding: 10px;
+            background-color: #12aa40;
+            color: white;
+            margin-top: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 20px;
+            transition: background-color 0.9s;
+        }
+
+        button:hover {
+            background-color: #31b0d5;
+        }
+        .show-park {
+            background-color: #265f17
+        }
+        .show-park:hover {
+            background-color: #f5a77a;
+        }
+
+        
+        
+
     </style>
 </head>
 <body>
@@ -113,50 +197,67 @@
     <table id="parking-table">
         <thead>
             <tr>
-                <th>Parking ID</th>
                 <th>Name</th>
+                <th>address</th>
                 <th>Available Spots</th>
+                <th>Price Per Hour in $</th>
             </tr>
         </thead>
         <tbody>
             {% for parking in parkings %}
             <tr class="parking-row" data-parking-id="{{ parking.id }}">
-                <td>{{ parking.id }}</td>
                 <td>{{ parking.name }}</td>
+                <td>{{ parking.address }}</td>
                 <td>{{ parking.available_spots }}</td>
+                <td>{{ parking.price_per_hour }} </td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
 
-<button id="show-parking-form">Want to add a parking?</button>    
-<form id ="parking-form" method="post" action="/add_parking/{{ instance_id }}">
-    {% csrf_token %}
-    <div class="form-group">
-        <label for="name">Parking Name:</label>
-        <input type="text" id="name" name="name" required>
-    </div>
-    <div class="form-group">
-        <label for="address">Address:</label>
-        <input type="text" id="address" name="address" required>
-    </div>
-    <div class="form-group">
-        <label for="total_spots">Total Spots:</label>
-        <input type="number" id="total_spots" name="total_spots" required>
-    </div>
-    <div class="form-group">
-        <label for="price_per_place">Price per Place:</label>
-        <input type="number" id="price_per_hour" name="price_per_hour" required>
-    </div>
-    <button type="submit">Add Parking</button>
-</form>
+        <button id="show-parking-form" class="show-park">Click here to add a Parking</button>
+        <div class="form-container">
+                    <form id ="parking-form" method="post" action="/add_parking/{{ instance_id }}">
+                        {% csrf_token %}
+                    <div class="form-group">
+                        <label for="name">Parking Name:</label>
+                        <input type="text" id="name" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="address">Address:</label>
+                        <input type="text" id="address" name="address" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="total_spots">Total Spots:</label>
+                        <input type="number" id="total_spots" name="total_spots" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="price_per_hour">Price per hour:</label>
+                        <input type="number" id="price_per_hour" name="price_per_hour" required>
+                    </div>
+                    <button type="submit">Add Parking</button>
+                </form>
+        </div>
 
-    <div class="btn-container">
-        <button class="show-numbers-btn" id="show-numbers-btn">Show Numbers</button>
+            <div class="cbtn-container">
+                <button class="show-numbers-btn" id="show-numbers-btn">Show Parking statistics</button>
+            </div>
+            <div id="chart-container">
+                <img id="chart" src="" alt="Revenue Chart">
+            </div>
+
+            <div class="cbtn-container">
+                <button class="show-numbers-btn2" id="show-numbers-btn2">Show Day to Day revenue</button>
+            </div>
+            <div id="chart-container2">
+                <img id="chart2" src="" alt="Revenue Chart">
+            </div>
     </div>
-    <div id="chart-container">
-        <img id="chart" src="" alt="Revenue Chart">
-    </div>
+    
+
+</div>
+
+    
 </div>
 
 <script>
@@ -188,7 +289,27 @@
                 });
             }
         });
+        document.getElementById("show-numbers-btn2").addEventListener("click", function() {
+            const ownerId = "{{ instance_id }}"; // Make sure to remove the extra space
+            console.log(ownerId);
+            const chartContainer = document.getElementById("chart-container2");
+            if (chartContainer.style.display === "block") {
+                chartContainer.style.display = "none"; // Hide the chart container
+            } else {
+                fetch(`/chart2/${ownerId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.graph) {
+                        document.getElementById("chart2").setAttribute("src", "data:image/svg+xml;base64," + btoa(data.graph));
+                        chartContainer.style.display = "block"; // Show the chart container
+                    } else {
+                        alert('Failed to load the graph.');
+                    }
+                });
+            }
+        });
     });
+    
     const showFormButton = document.getElementById('show-parking-form');
         const parkingForm = document.getElementById('parking-form');
 

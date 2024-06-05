@@ -8,7 +8,7 @@ from .ParkingOwnerView import parking_archive_sessions,parking_owner_register, L
 from .modelViews.modelViews import ParkingOwnerAPIView, UserCarAPIView,ParkingSessionAPIView
 from .views.parkingViews import StartSession,EndSession ,RecommendParking,ReserveSpot
 from .ParkingOwnerView import parking_owner_register, parking_archive_sessions, add_parking_PO
-from .chart import your_view
+from .chart import your_view, your_view2
 UserRouter= DefaultRouter()
 UserRouter.register('touchInfo', PublicUserInfoViewSet, basename='info')
 
@@ -40,6 +40,7 @@ urlpatterns = [
     path('parkingsession/<int:pk>/', ParkingSessionAPIView.as_view(), name='parkingsession_detail_api'),
     path('parkingowners/', ParkingOwnerAPIView.as_view()),
     path('chart/<int:id>', your_view, name="chart" ),
+    path('chart2/<int:id>', your_view2, name="chart2"),
     path('parkingowners/<int:pk>/', ParkingOwnerAPIView.as_view()),
     path('parking/<int:pk>/archives/', parking_archive_sessions, name='parking_archive_sessions'),
     path('add_parking/<int:id>', add_parking_PO, name = "add_parking_PO"),

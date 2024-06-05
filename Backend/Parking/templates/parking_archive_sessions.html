@@ -10,6 +10,8 @@
             background-color: #f2f2f2;
             margin: 0;
             padding: 0;
+            background: url('https://th.bing.com/th/id/OIG3.saUBL5UrLHDTAa.Z0EG0?pid=ImgGn') no-repeat center center fixed;
+            background-size: cover;
         }
 
         .container {
@@ -52,6 +54,19 @@
             text-align: right;
             font-weight: bold;
         }
+        .total-cost {
+            background-color: #3ad85f; /* Light green background */
+            color: white; /* White text */
+            padding: 15px 20px; /* Padding for spacing */
+            border-radius: 8px; /* Rounded corners */
+            font-size: 1.2em; /* Increase font size */
+            font-weight: bold; /* Bold text */
+            text-align: left; /* Center the text */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
+            margin: 20px auto; /* Center the div horizontally with auto margins */
+            max-width: 300px; /* Maximum width */
+            border: 2px solid #218838; /* Slightly darker green border */
+        }
     </style>
 </head>
 <body>
@@ -80,8 +95,8 @@
             {% endfor %}
         </tbody>
     </table>
-    <div id="total-cost">
-        Total Cost: {{ total_cost }}
+    <div id="total-cost" class="total-cost">
+        Total Earnings from {{ parking.name }}: {{ total_cost }} $
     </div>
 </div>
 
