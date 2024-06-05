@@ -82,7 +82,7 @@
             display: inline-block;
             margin: 10px 0;
             padding: 10px 20px;
-            background-color: #5bc0de;
+            background-color: #35f8de;
             color: white;
             text-align: center;
             text-decoration: none;
@@ -162,7 +162,7 @@
         button {
             width: 50%;
             padding: 10px;
-            background-color: #12aa40;
+            background-color: #3ff0f7;
             color: white;
             margin-top: 10px;
             border: none;
@@ -194,6 +194,7 @@
     <div class="btn-container">
         <a href="{% url 'log_out' %}" class="logout-btn">Logout</a>
     </div>
+    {% if parkings %}
     <table id="parking-table">
         <thead>
             <tr>
@@ -214,6 +215,7 @@
             {% endfor %}
         </tbody>
     </table>
+    {% endif %}
 
         <button id="show-parking-form" class="show-park">Click here to add a Parking</button>
         <div class="form-container">
