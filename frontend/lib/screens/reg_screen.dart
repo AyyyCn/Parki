@@ -153,7 +153,7 @@ List<String> cookies = cookieHeader.split(RegExp(r'[;,]'));
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  Color(0xFFC4DEF6),
+                  Color.fromARGB(255, 102, 187, 236),
                   Color.fromARGB(255, 102, 187, 236),
                 ],
               ),
@@ -321,7 +321,7 @@ List<String> cookies = cookieHeader.split(RegExp(r'[;,]'));
                           borderRadius: BorderRadius.circular(30),
                           gradient: const LinearGradient(
                             colors: [
-                              Color(0xFFC4DEF6),
+                              Color.fromARGB(255, 102, 187, 236),
                               Color.fromARGB(255, 102, 187, 236),
                             ],
                           ),

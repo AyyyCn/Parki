@@ -1,3 +1,4 @@
+from decimal import Decimal
 from django.utils import timezone
 from ..models import ParkingSession, ParkingSessionArchive
 from ..models import CustomUser, UserCar
@@ -32,9 +33,9 @@ def pay(user,license_plate,parking_id):
             parking_session.save()
             return "Parking is free. Thank you!"
         cost = parking_session.calculate_cost()
-        if(user.credit < cost):
+        if(user.credit <Decimal(cost)):
             return "Insufficient balance. Please top up your account."
-        user.credit -= cost
+        user.credit -= Decimal(cost)
         user.save()
 
         # Mark the session as paid

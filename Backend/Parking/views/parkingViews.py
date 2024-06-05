@@ -6,7 +6,10 @@ from ..models import Parking
 from ..Serializers.parkingSerializers import ParkingSerializer
 from django.views import View
 from ..Services.ParkingServices import start_parking_session, exit_parking_session
-
+import os
+from django.conf import settings
+from django.core.files.storage import default_storage
+from django.core.files.base import ContentFile
 class ParkingAPIView(APIView):
     def get(self, request):
         parkings = Parking.objects.all()
@@ -148,7 +151,6 @@ class ImageUploadView(APIView):
         # For demonstration, we will just return a success message.
         msg = start_parking_session("12ABC", parking_id)
         return Response({'message': 'Image received successfully!', 'parking_id': parking_id,'result': msg}, status=status.HTTP_200_OK)
-
 class EndSession(APIView):
     def post(self, request, *args, **kwargs):
         if 'parking_id' not in request.data or 'license_plate' not in request.data:
@@ -156,7 +158,24 @@ class EndSession(APIView):
 
         parking_id = request.data.get('parking_id')
         license_plate = request.data.get('license_plate')
-        print("Recieved plate image")
+        if 'image' in request.FILES:
+            image = request.FILES['image']
+            
+            # Define the directory where you want to save the images
+            image_directory = os.path.join(settings.MEDIA_ROOT, 'parking_images')
+            if not os.path.exists(image_directory):
+                os.makedirs(image_directory)
+            
+            # Define the file path and save the image
+            image_path = os.path.join(image_directory, image.name)
+            with default_storage.open(image_path, 'wb+') as destination:
+                for chunk in image.chunks():
+                    destination.write(chunk)
+            
+            # Optional: Save the path to the image if needed
+            image_url = default_storage.url(image_path)
+
+        print("Received plate image")
         print("extracted license plate: ", license_plate)
         result = exit_parking_session(license_plate, parking_id)
 
@@ -180,17 +199,39 @@ class StartSession(APIView):
 
         parking_id = request.data.get('parking_id')
         license_plate = request.data.get('license_plate')
-        print("Recieved plate image")
+        
+        if 'image' in request.FILES:
+            image = request.FILES['image']
+            
+            # Define the directory where you want to save the images
+            image_directory = os.path.join(settings.MEDIA_ROOT, 'parking_images')
+            if not os.path.exists(image_directory):
+                os.makedirs(image_directory)
+            
+            # Define the file path and save the image
+            image_path = os.path.join(image_directory, image.name)
+            with default_storage.open(image_path, 'wb+') as destination:
+                for chunk in image.chunks():
+                    destination.write(chunk)
+            
+            # Optional: Save the path to the image if needed
+            image_url = default_storage.url(image_path)
+
+        print("Received plate image")
         print("extracted license plate: ", license_plate)
         result = start_parking_session(license_plate, parking_id)
+
+        # Map the status to HTTP status codes
         status_map = {
             "session_already_active": status.HTTP_200_OK,
             "session_started": status.HTTP_200_OK,
             "no_spots_available": status.HTTP_403_FORBIDDEN,
         }
+
+        # Get the HTTP status from the map, default to 400 if not found
         http_status = status_map.get(result['status'], status.HTTP_400_BAD_REQUEST)
-        return Response({'message': result, 'parking_id': parking_id}, status=http_status )
-    
+
+        return Response({'message': result, 'parking_id': parking_id}, status=http_status)
 
 class ReserveSpot(APIView):
     def post(self, request, *args, **kwargs):
@@ -204,7 +245,8 @@ class ReserveSpot(APIView):
 
         # Map the status to HTTP status codes
         status_map = {
-            "session_already_active": status.HTTP_200_OK
+            "session_already_active": status.HTTP_200_OK,
+            "session_started": status.HTTP_200_OK
         }
 
         # Get the HTTP status from the map, default to 400 if not found

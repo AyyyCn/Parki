@@ -6,8 +6,10 @@ import 'package:frontend/screens/home_screen.dart';
 import 'package:frontend/screens/parking_detail_screen.dart';
 import 'package:frontend/widgets/confetti_card.dart';
 import 'package:frontend/widgets/custom_bottom_navigation_bar.dart';
+import 'package:frontend/widgets/custom_icon.dart';
 import 'package:frontend/widgets/happy_card.dart';
 import 'package:frontend/widgets/sad_card.dart';
+import 'package:ionicons/ionicons.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:async';
 import 'package:intl/intl.dart';
@@ -168,8 +170,22 @@ class _ParkBookingScreenState extends State<ParkBookingScreen> {
   Widget build(BuildContext context) {
   return Scaffold(
     appBar: AppBar(
-      title: Text('My Bookings'),
-      backgroundColor: Colors.teal,
+       automaticallyImplyLeading: false,
+      backgroundColor: const Color.fromARGB(255, 102, 187, 236),
+      foregroundColor: Colors.white,
+      title: Row(
+          children: [
+            Text(
+              'Your Parking Sessions',
+              style: TextStyle(color: Colors.white), // Set text color to white
+            ),
+            Spacer(), // Add spacer to push the money icon to the right
+            Icon(
+              Icons.time_to_leave_outlined,
+              color: Colors.white, // Set icon color to white
+            ),
+          ],
+        ),
     ),
     body: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -247,7 +263,7 @@ class _ParkBookingScreenState extends State<ParkBookingScreen> {
                     padding: EdgeInsets.all(16.0),
                     child: Text(
                       'Total Price to Pay: ${calculateTotalPriceToPay().toStringAsFixed(2) }TND',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.teal),
+                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color.fromARGB(255, 102, 187, 236)),
                     ),
                   ),
                   ListView.builder(
@@ -275,17 +291,17 @@ class _ParkBookingScreenState extends State<ParkBookingScreen> {
                                   context: context,
                                   builder: (BuildContext context) {
                                         return AlertDialog(
-                                          title: Text(
+                                          title: const Text(
                                             'Confirm Payment',
                                             style: TextStyle(
                                               fontWeight: FontWeight.bold,
-                                              color: Colors.blue,
+                                              color: Color.fromARGB(255, 102, 187, 236),
                                               fontSize: 24,
                                             ),
                                           ),
                                           content: Text(
                                             'Do you want to pay $amount?',
-                                            style: TextStyle(
+                                            style: const TextStyle(
                                               fontSize: 18,
                                               color: Colors.black,
                                             ),
@@ -295,11 +311,11 @@ class _ParkBookingScreenState extends State<ParkBookingScreen> {
                                               onPressed: () {
                                                 Navigator.of(context).pop(false); // Return false if canceled
                                               },
-                                              child: Text(
+                                              child: const Text(
                                                 'No',
                                                 style: TextStyle(
                                                   fontSize: 18,
-                                                  color: Colors.red,
+                                                  color: Colors.black,
                                                 ),
                                               ),
                                             ),
@@ -311,7 +327,7 @@ class _ParkBookingScreenState extends State<ParkBookingScreen> {
                                                 'Yes',
                                                 style: TextStyle(
                                                   fontSize: 18,
-                                                  color: Colors.green,
+                                                  color: Color.fromARGB(255, 102, 187, 236),
                                                 ),
                                               ),
                                             ),
@@ -524,7 +540,7 @@ class AnimatedRunningSessionCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                Icon(Icons.local_parking, color: Colors.orange),
+                Icon(Icons.local_parking, color: Color.fromARGB(255, 102, 187, 236)),
                 SizedBox(width: 8),
                 Text(
                   parkingName,
@@ -557,19 +573,54 @@ class AnimatedRunningSessionCard extends StatelessWidget {
               ],
             ),
             SizedBox(height: 8),
-            Text('Current Price: ${currentPrice.toStringAsFixed(2)} TND'),
+            RichText(
+  text: TextSpan(
+    children: [
+      TextSpan(
+        text: 'Current Price: ',
+        style: TextStyle(
+          color: Colors.black, // Default color for the non-highlighted part
+          fontWeight: FontWeight.normal, // Normal weight for non-highlighted part
+        ),
+      ),
+      TextSpan(
+        text: ' ${currentPrice.toStringAsFixed(2)} ',
+        style: TextStyle(
+          color: Colors.black,
+          fontWeight: FontWeight.bold, // Bold for the highlighted part
+        ),
+      ),
+      TextSpan(
+        text: ' TND',
+        style: TextStyle(
+          color: Colors.black, // Default color for the non-highlighted part
+          fontWeight: FontWeight.normal, // Normal weight for non-highlighted part
+        ),
+      ),
+    ],
+  ),
+),
+
             SizedBox(height: 8),
             ElevatedButton(
               onPressed: onPay,
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.teal,
+                backgroundColor: const Color.fromARGB(255, 102, 187, 236),
                 elevation: 0,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
               ),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                child: Text('Pay', style: TextStyle(fontSize: 16)),
-              ),
+             child: Padding(
+  padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+  child: Text(
+    'Pay',
+    style: TextStyle(
+      fontSize: 16,
+      fontWeight: FontWeight.bold,
+      color: Colors.white,
+    ),
+  ),
+),
+
             ),
           ],
         ),
@@ -596,7 +647,7 @@ class TimeFrameButton extends StatelessWidget {
       child: Container(
         padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
         decoration: BoxDecoration(
-          color: isSelected ? Colors.teal : Colors.transparent,
+          color: isSelected ? Color.fromARGB(255, 102, 187, 236) : Colors.transparent,
           borderRadius: BorderRadius.circular(20),
         ),
         child: Text(
@@ -667,8 +718,14 @@ class CompletedSessionCard extends StatelessWidget {
             SizedBox(height: 8),
             TextButton.icon(
               onPressed: onRepark,
-              icon: Icon(Icons.directions_car, color: Colors.teal),
-              label: Text('Re-Park'),
+              icon: Icon(Icons.directions_car, color: Color.fromARGB(255, 102, 187, 236)),
+              label: Text(
+                      'ReParK',
+                      style: TextStyle(
+                        color: Colors.black,
+                      ),
+                      ),
+
             ),
           ],
         ),

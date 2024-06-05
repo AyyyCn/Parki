@@ -43,7 +43,7 @@ class CustomUser(AbstractUser):
     country = models.CharField(max_length=100, default=None, null=True)
     updated_at = models.DateTimeField(auto_now=True)
     subscription = models.IntegerField(default=None, null=True)
-    credit = models.IntegerField(default=50, null=True)
+    credit = models.DecimalField(max_digits=6,decimal_places=2, default=50, null=True)
     username = None
 
     USERNAME_FIELD = 'phone_number'

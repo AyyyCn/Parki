@@ -168,7 +168,8 @@ Widget build(BuildContext context) {
     body: CustomScrollView(
       slivers: [
         SliverAppBar(
-           backgroundColor: Colors.teal,
+           automaticallyImplyLeading: false,
+           backgroundColor: Color.fromARGB(255, 102, 187, 236),
           title: Text(
             'Your Profile',
             style: TextStyle(color: Colors.white), // Set text color to white
@@ -192,11 +193,11 @@ Widget build(BuildContext context) {
               : SingleChildScrollView(
                   child: Column(
                     children: [
-                      const SizedBox(height: 10),
+                     
                       profileItem('Name', name, CupertinoIcons.person),
-                      const SizedBox(height: 10),
+                      
                       profileItem('Phone', phone, CupertinoIcons.phone),
-                      const SizedBox(height: 10),
+                      
                       profileItem('Vehicles', vehicles, Icons.directions_car),
                       const SizedBox(height: 20),
                       SizedBox(
@@ -212,7 +213,7 @@ Widget build(BuildContext context) {
                           },
                           style: ElevatedButton.styleFrom(
                             padding: const EdgeInsets.all(15),
-                            backgroundColor: Color.fromARGB(255, 216, 219, 234),
+                            backgroundColor: Color.fromARGB(255, 102, 187, 236),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(30),
                             ),
@@ -222,7 +223,7 @@ Widget build(BuildContext context) {
                             style: GoogleFonts.lato(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
-                              color: Colors.black,
+                              color: Colors.white,
                             ),
                           ),
                         ),
