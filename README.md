@@ -36,8 +36,3 @@ Note: The LPR module is built on proprietary algorithms and cannot be shared pub
 
 ## 🤝 Contributing
 Got ideas on making Parki even better? Contributions are welcome!
-
-## 🙏 Acknowledgements
-- [Flutter](https://flutter.dev)
-- [Django](https://www.djangoproject.com)
-- [PostgreSQL](https://www.postgresql.org)
