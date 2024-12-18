@@ -17,7 +17,8 @@ Parki is a cutting-edge mobile app designed to revolutionize parking management.
 - **Mobile Reservations 📱**: Book your spot before you even arrive.
 - **Automated Payments 💳**: Seamless, quick, and secure payments right from your smartphone.
 - **Admin Dashboard 📊**: For parking lot managers, a robust dashboard to track usage statistics, manage spots, and optimize operations.
-  
+  ![d1dd3d2f-226d-4f37-afec-0e345d7a4bdc](https://github.com/user-attachments/assets/89df63d8-cd65-452d-bfff-46ec59f9dbc8)
+
 ## 📞 Usage
 Parki simplifies the parking experience with an easy-to-use mobile app where users can:
 - **Create an Account**: Sign up and log into the Parki app. Navigate through a simple setup process to enter personal information and vehicle details.
