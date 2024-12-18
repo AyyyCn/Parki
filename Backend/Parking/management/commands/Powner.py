@@ -1,4 +1,4 @@
-# myapp/management/commands/seed_data.py
+
 
 from django.core.management.base import BaseCommand
 from faker import Faker
@@ -29,6 +29,7 @@ class Command(BaseCommand):
         for i in range(total_parkings):
             parkingOwner = ParkingOwner(
                 first_name=fake.company(),
+                password="0000",
                 address=fake.address(),
                 phone_number= self.phone_numbers[i]
             )
